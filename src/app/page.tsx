@@ -124,13 +124,9 @@ export default function Home() {
         <Card className="w-full max-w-[480px] bg-white rounded-2xl overflow-hidden shadow-lg z-10 -mt-10">
           <CardContent className="flex flex-col items-center gap-6 p-6">
             <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full">
-              <div className="gap-4 flex items-center w-full">
-                <div className="flex-1 [font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#242426] text-xl tracking-[-0.50px] leading-7">
+              <div className="flex items-center w-full">
+                <div className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#242426] text-xl tracking-[-0.50px] leading-7">
                   Log In
-                </div>
-
-                <div className="flex-1 [font-family:'SF_Pro-MediumItalic',Helvetica] font-medium italic text-[#acacbf] text-sm text-right tracking-[-0.50px] leading-5">
-                  Super Admin
                 </div>
               </div>
 
@@ -249,19 +245,6 @@ export default function Home() {
               </div>
             </form>
 
-            {/* Sign Up Link */}
-            <div className="w-full text-center">
-              <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm">
-                Don&apos;t have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => router.push("/register")}
-                  className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#1f1f3f] hover:underline"
-                >
-                  Sign up
-                </button>
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>

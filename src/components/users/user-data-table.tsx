@@ -73,7 +73,8 @@ function UserActions({ user, editLabel = "Edit", onEdit, onDelete }: UserActions
 
 const getColumns = (
   onEdit?: (user: User) => void,
-  onDelete?: (user: User) => void
+  onDelete?: (user: User) => void,
+  editLabel?: string
 ): ColumnDef<User>[] => [
   {
     accessorKey: "id",
@@ -163,6 +164,7 @@ const getColumns = (
     cell: ({ row }) => (
       <UserActions
         user={row.original}
+        editLabel={editLabel}
         onEdit={onEdit}
         onDelete={onDelete}
       />
@@ -172,18 +174,19 @@ const getColumns = (
 
 interface UserDataTableProps {
   data: User[];
+  editLabel?: string;
   onEdit?: (user: User) => void;
   onDelete?: (user: User) => void;
   onRowClick?: (user: User) => void;
 }
 
-export function UserDataTable({ data, onEdit, onDelete, onRowClick }: UserDataTableProps) {
+export function UserDataTable({ data, editLabel, onEdit, onDelete, onRowClick }: UserDataTableProps) {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 12,
   });
 
-  const columns = getColumns(onEdit, onDelete);
+  const columns = getColumns(onEdit, onDelete, editLabel);
 
   const table = useReactTable({
     data,
