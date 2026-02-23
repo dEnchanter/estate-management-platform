@@ -1,7 +1,6 @@
 // API Client Configuration
-// Defaults to the local Next.js proxy route so all traffic goes HTTPS → proxy → backend.
-// Override with NEXT_PUBLIC_API_BASE_URL if you want to hit the backend directly.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/proxy";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://16.171.32.5:8080/api";
 
 export class ApiError extends Error {
   constructor(
@@ -65,8 +64,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 export const apiClient = {
   async get<T>(endpoint: string, config?: RequestConfig): Promise<T> {
-    const base = typeof window !== "undefined" ? window.location.origin : "";
-    const url = new URL(`${API_BASE_URL}${endpoint}`, base);
+    const url = new URL(`${API_BASE_URL}${endpoint}`);
 
     if (config?.params) {
       Object.entries(config.params).forEach(([key, value]) => {
