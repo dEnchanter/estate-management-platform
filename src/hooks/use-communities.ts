@@ -21,6 +21,7 @@ export const communityKeys = {
   detail: (id: string) => [...communityKeys.details(), id] as const,
   qrCode: (id: string) => [...communityKeys.all, "qr", id] as const,
   categories: (id?: string) => [...communityKeys.all, "categories", id] as const,
+  idCheck: (communityId: string) => [...communityKeys.all, "id-check", communityId] as const,
 };
 
 // ============================================================================
@@ -65,6 +66,16 @@ const createCommunity = async (formData: FormData): Promise<ApiResponse> => {
   }
 
   return response.json();
+};
+
+const checkCommunityId = async (communityId: string): Promise<{ taken: boolean }> => {
+  const results = await apiClient.get<Community[]>("/community/communities", {
+    params: { search: communityId },
+  });
+  const taken = Array.isArray(results) && results.some(
+    (c) => c.myCommunityID?.toLowerCase() === communityId.toLowerCase()
+  );
+  return { taken };
 };
 
 const createCommunityCategory = async (data: CreateCategoryCategoryRequest): Promise<ApiResponse> => {
@@ -119,6 +130,18 @@ export function useCommunityCategories(communityId?: string, enabled = true) {
 }
 
 /**
+ * Check if a communityId (community username/slug) is already taken.
+ * Only fires when communityId.length >= 4.
+ */
+export function useCheckCommunityId(communityId: string) {
+  return useQuery({
+    queryKey: communityKeys.idCheck(communityId),
+    queryFn: () => checkCommunityId(communityId),
+    enabled: communityId.length >= 4,
+  });
+}
+
+/**
  * Create a new community with logo upload
  */
 export function useCreateCommunity() {
@@ -141,7 +164,9 @@ export function useCreateCommunityCategory() {
   return useMutation({
     mutationFn: createCommunityCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: communityKeys.categories() });
+      // Invalidate at the base "categories" prefix so all community-scoped
+      // category queries (with or without an id param) are refreshed.
+      queryClient.invalidateQueries({ queryKey: [...communityKeys.all, "categories"] });
     },
   });
 }

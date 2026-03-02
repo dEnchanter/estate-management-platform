@@ -10,6 +10,7 @@ import type {
   CreateUserWithRoleRequest,
   RolesResponse,
   User,
+  ApiResponse,
 } from "@/types/api.types";
 
 // ============================================================================
@@ -57,8 +58,8 @@ const fetchPendingResidents = async (): Promise<User[]> => {
   return response.data || [];
 };
 
-const checkUsername = async (username: string): Promise<{ exists: boolean }> => {
-  return apiClient.get<{ exists: boolean }>(`/users/${username}`);
+const checkUsername = async (username: string): Promise<ApiResponse> => {
+  return apiClient.get<ApiResponse>(`/users/${username}`);
 };
 
 // ============================================================================
@@ -83,8 +84,9 @@ export function useLogin() {
         localStorage.setItem("userProfile", JSON.stringify(data.profile));
       }
 
-      // Update query cache
-      queryClient.setQueryData(authKeys.user(), data.profile);
+      // Update query cache — include userType so permissions system has the
+      // clean single-word value ("System", "Community") without re-reading localStorage
+      queryClient.setQueryData(authKeys.user(), { ...data.profile, userType: data.userType });
     },
   });
 }
@@ -183,6 +185,7 @@ export function useCheckUsername(username: string) {
     queryKey: authKeys.checkUsername(username),
     queryFn: () => checkUsername(username),
     enabled: !!username && username.length >= 4,
+    retry: false,
   });
 }
 
@@ -195,9 +198,14 @@ export function useCurrentUser() {
     queryFn: () => {
       if (typeof window === "undefined") return null;
       const userProfile = localStorage.getItem("userProfile");
-      return userProfile ? JSON.parse(userProfile) : null;
+      const userType = localStorage.getItem("userType");
+      if (!userProfile) return null;
+      const profile = JSON.parse(userProfile);
+      // Attach userType so permissions can use the clean single-word value
+      // e.g. "System" instead of profile.profileType "Super Admin"
+      return { ...profile, userType: userType || profile.profileType };
     },
-    staleTime: Number.POSITIVE_INFINITY, // Never refetch from server
+    staleTime: Number.POSITIVE_INFINITY,
   });
 }
 

@@ -22,8 +22,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
             refetchOnWindowFocus: process.env.NODE_ENV === "production",
           },
           mutations: {
-            // Retry failed mutations 1 time
-            retry: 1,
+            retry: 0,
           },
         },
       })

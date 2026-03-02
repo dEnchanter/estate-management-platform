@@ -47,7 +47,7 @@ export function Navbar() {
           <SearchIcon className="absolute left-3 w-4 h-4 text-[#5b5b66] transition-colors group-focus-within:text-[#1f1f3f]" />
           <Input
             placeholder="Search..."
-            className="w-full pl-9 pr-16 py-1.5 h-9 bg-[#f4f4f9] border-0 rounded-lg [font-family:'SF_Pro-Regular',Helvetica] text-sm text-[#5b5b66] placeholder:text-[#acacbf] focus-visible:ring-2 focus-visible:ring-[#1f1f3f]/20 focus-visible:ring-offset-0 focus-visible:bg-white transition-all"
+            className="w-full pl-9 pr-16 py-1.5 h-9 bg-[#f4f4f9] border-0 rounded-lg text-sm text-[#5b5b66] placeholder:text-[#acacbf] focus-visible:ring-2 focus-visible:ring-[#1f1f3f]/20 focus-visible:ring-offset-0 focus-visible:bg-white transition-all"
           />
           {/* Keyboard shortcut hint */}
           <div className="absolute right-3 flex items-center gap-1 opacity-50 group-focus-within:opacity-0 transition-opacity">
@@ -66,7 +66,7 @@ export function Navbar() {
           {/* <Button
             variant="ghost"
             size="sm"
-            className="h-9 px-3 text-sm text-[#5b5b66] hover:text-[#1f1f3f] hover:bg-gray-100 rounded-lg transition-colors [font-family:'SF_Pro-Medium',Helvetica]"
+            className="h-9 px-3 text-sm text-[#5b5b66] hover:text-[#1f1f3f] hover:bg-gray-100 rounded-lg transition-colors font-medium"
           >
             Quick Add
           </Button> */}
@@ -94,15 +94,15 @@ export function Navbar() {
               >
                 <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
                   <AvatarImage src={user?.communityLogo || "/avatar.svg"} />
-                  <AvatarFallback className="bg-gradient-to-br from-[#1f1f3f] to-[#2f5fbf] text-white text-xs [font-family:'SF_Pro-Semibold',Helvetica]">
+                  <AvatarFallback className="bg-gradient-to-br from-[#1f1f3f] to-[#2f5fbf] text-white text-xs font-semibold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden xl:flex flex-col items-start">
-                  <span className="text-xs [font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] leading-tight">
+                  <span className="text-xs font-semibold text-[#242426] leading-tight">
                     {userName}
                   </span>
-                  <span className="text-[10px] [font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] leading-tight">
+                  <span className="text-[10px] text-[#acacbf] leading-tight">
                     {userRole}
                   </span>
                 </div>

@@ -14,27 +14,20 @@ import {
 export function usePermissions() {
   const { data: user } = useCurrentUser();
 
-  const profileType = user?.profileType;
+  // Use userType (e.g. "System", "Community") — the clean single-word value
+  // from the login response, not profileType ("Super Admin") from profile object
+  const userType = user?.userType;
 
   const permissions = useMemo(() => {
     return {
-      // Check if user has permission for specific navigation item
-      canAccess: (item: NavigationItem) => hasPermission(profileType, item),
-
-      // Get all allowed navigation items
-      allowedNavItems: getAllowedNavItems(profileType),
-
-      // Role checks
-      isSuperAdmin: isSuperAdmin(profileType),
-      isCommunityAdmin: isCommunityAdmin(profileType),
-
-      // Profile type
-      profileType,
-
-      // User data
+      canAccess: (item: NavigationItem) => hasPermission(userType, item),
+      allowedNavItems: getAllowedNavItems(userType),
+      isSuperAdmin: isSuperAdmin(userType),
+      isCommunityAdmin: isCommunityAdmin(userType),
+      userType,
       user,
     };
-  }, [profileType, user]);
+  }, [userType, user]);
 
   return permissions;
 }

@@ -1,40 +1,45 @@
 /**
  * Role-based access control utilities
+ *
+ * Keyed on userType from the login response (localStorage "userType"),
+ * NOT profile.profileType. Values match login response userType field:
+ *   "System"    → Zamanni super admin (full access)
+ *   "Community" → Estate admin / staff (scoped to their community)
+ *   "Resident"  → Resident self-service
+ *   "Developer" → Developer self-service
  */
 
-export type ProfileType = "Super Admin" | "Community Admin" | "Resident" | "Developer" | "System";
+export type UserType = "System" | "Community" | "Resident" | "Developer";
 
 export type NavigationItem = "dashboard" | "admins" | "communities" | "users" | "collections" | "utilities" | "wallet" | "access-codes" | "audit-logs" | "partners" | "integrations";
 
 /**
- * Define which navigation items each profile type can access
+ * Define which navigation items each user type can access
  */
-export const ROLE_PERMISSIONS: Record<ProfileType, NavigationItem[]> = {
-  "Super Admin": [
+export const ROLE_PERMISSIONS: Record<UserType, NavigationItem[]> = {
+  "System": [
     "dashboard",
+    "admins",
     "communities",
     "utilities",
     "wallet",
-    "audit-logs",
     "partners",
     "integrations",
+    "audit-logs",
   ],
-  "Community Admin": [
+  "Community": [
     "dashboard",
+    "admins",
     "users",
     "collections",
     "wallet",
     "access-codes",
     "audit-logs",
-    "partners",
   ],
   "Resident": [
     "dashboard",
   ],
   "Developer": [
-    "dashboard",
-  ],
-  "System": [
     "dashboard",
   ],
 };
@@ -43,15 +48,12 @@ export const ROLE_PERMISSIONS: Record<ProfileType, NavigationItem[]> = {
  * Check if a user has permission to access a specific navigation item
  */
 export function hasPermission(
-  profileType: string | undefined,
+  userType: string | undefined,
   item: NavigationItem
 ): boolean {
-  if (!profileType) return false;
+  if (!userType) return false;
 
-  // Normalize profile type
-  const normalizedProfileType = profileType as ProfileType;
-
-  const permissions = ROLE_PERMISSIONS[normalizedProfileType];
+  const permissions = ROLE_PERMISSIONS[userType as UserType];
   if (!permissions) return false;
 
   return permissions.includes(item);
@@ -61,24 +63,23 @@ export function hasPermission(
  * Get all allowed navigation items for a user
  */
 export function getAllowedNavItems(
-  profileType: string | undefined
+  userType: string | undefined
 ): NavigationItem[] {
-  if (!profileType) return [];
+  if (!userType) return [];
 
-  const normalizedProfileType = profileType as ProfileType;
-  return ROLE_PERMISSIONS[normalizedProfileType] || [];
+  return ROLE_PERMISSIONS[userType as UserType] || [];
 }
 
 /**
- * Check if user is Super Admin
+ * Check if user is System (Zamanni super admin)
  */
-export function isSuperAdmin(profileType: string | undefined): boolean {
-  return profileType === "Super Admin";
+export function isSuperAdmin(userType: string | undefined): boolean {
+  return userType === "System";
 }
 
 /**
- * Check if user is Community Admin
+ * Check if user is a Community admin/staff
  */
-export function isCommunityAdmin(profileType: string | undefined): boolean {
-  return profileType === "Community Admin";
+export function isCommunityAdmin(userType: string | undefined): boolean {
+  return userType === "Community";
 }

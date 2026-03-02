@@ -331,28 +331,42 @@ POST /community/new-community
 Content-Type: multipart/form-data
 ```
 **Form fields:**
+| Field | Type | Description |
+|---|---|---|
+| `payload` | string (JSON) | Community and user JSON payload (see shape below) |
+| `logo` | File | Community logo image |
+
+**`payload` JSON shape:**
+```json
+{
+  "name": "string",
+  "address": {
+    "country": "string",
+    "state": "string",
+    "lga": "string",
+    "city": "string",
+    "street": "string"
+  },
+  "user": {
+    "username": "string"
+  }
+}
 ```
-name        — community name
-address     — JSON string of { country, state, lga, city, street }
-admin.name  — admin full name
-admin.email
-admin.phone
-admin.username
-logo        — File (image)
-```
+> Validate the `username` exists first via `GET /users/:username` (`useCheckUsername`) before submitting.
+
 **Response:** `{ "data": {}, "message": "string", "success": boolean }`
 **Hook:** `useCreateCommunity()` from `use-communities.ts` — accepts a `FormData` object
 
 **How to build the FormData:**
 ```typescript
+const payload = {
+  name: communityName,
+  address: { country, state, lga, city, street },
+  user: { username },
+};
 const formData = new FormData();
-formData.append("name", communityName);
-formData.append("address", JSON.stringify(addressObj));
-formData.append("admin.name", adminName);
-formData.append("admin.email", adminEmail);
-formData.append("admin.phone", adminPhone);
-formData.append("admin.username", adminUsername);
-if (logoFile) formData.append("logo", logoFile);
+formData.append("payload", JSON.stringify(payload));
+formData.append("logo", logoFile);
 
 const { mutate: createCommunity } = useCreateCommunity();
 createCommunity(formData);
@@ -529,41 +543,218 @@ POST /resident/pay_due
 
 These configure how a due is distributed across wallets when paid.
 
-| Endpoint | Method | Hook |
-|---|---|---|
-| `GET /config/create-due-profiles` | GET | `useDueChargeProfiles()` |
-| `POST /config/create-due-profile` | POST | `useCreateDueChargeProfile()` |
-| `PUT /config/update-due-profile` | PUT | `useUpdateDueChargeProfile()` |
-| `PATCH /config/due-profile/:id/status?status=true\|false` | PATCH | `useToggleDueProfileStatus()` |
+#### List Due Charge Profiles
+```
+GET /config/create-due-profiles
+```
+**Hook:** `useDueChargeProfiles()` from `use-dues.ts`
 
-All hooks are in `use-dues.ts`. All need UI wiring.
+---
+
+#### Create a Due Charge Profile
+```
+POST /config/create-due-profile
+```
+**Body:**
+```json
+{
+  "id": "string (omit for create)",
+  "name": "string",
+  "community": "string (community UUID)",
+  "category": "string (category UUID)",
+  "distributions": [
+    { "id": "string", "distribution_type": "string", "amount": 0, "wallet_id": "string" }
+  ]
+}
+```
+**Hook:** `useCreateDueChargeProfile()` from `use-dues.ts`
+
+---
+
+#### Update a Due Charge Profile
+```
+PUT /config/update-due-profile
+```
+**Body:** Same shape as create above — include `id` to target the record.
+**Hook:** `useUpdateDueChargeProfile()` from `use-dues.ts`
+
+---
+
+#### Toggle Due Charge Profile Status
+```
+PATCH /config/due-profile/:id/status?status=<boolean>
+```
+**Path param:** `id` — profile UUID
+**Query param:** `status` — `true` to enable, `false` to disable
+**Hook:** `useToggleDueProfileStatus()` from `use-dues.ts`
 
 ---
 
 ### 4.5 Services & Utilities
 
-Services are utility types like Electricity, Water, Internet, etc.
-Products are the specific plans/packages under a service (e.g., "10GB data plan").
-Service charges are the fees applied per community.
+Services are utility types (Electricity, Water, Internet, etc.). Products are the specific plans under a service. Service/product charges define fee structures. All hooks live in `use-services.ts`. All need UI wiring.
 
-| Endpoint | Method | Hook | Notes |
-|---|---|---|---|
-| `GET /config/utilities` | GET | `useServices()` | List all services |
-| `POST /config/utilities` | POST | `useCreateOrUpdateService()` | Create or edit (send `id` to edit) |
-| `GET /config/utility-products` | GET | `useServiceProducts()` | List all products |
-| `POST /config/utility-products` | POST | `useCreateOrUpdateServiceProduct()` | Create or edit product |
-| `GET /config/service-charges` | GET | `useServiceCharges()` | List all service charges |
-| `POST /config/service-charges` | POST | `useCreateOrUpdateServiceCharge()` | Create or edit charge |
-| `GET /config/product-charges` | GET | `useProductCharges()` | List all product charges |
-| `POST /config/product-charges` | POST | `useCreateOrUpdateProductCharge()` | Create or edit product charge |
-| `GET /config/service-communities` | GET | `useServiceCommunities()` | List community→service mappings |
-| `POST /config/utility-communities` | POST | `useMapServiceToCommunity()` | Map/edit a community service |
-| `GET /resident/services` | GET | `useResidentServices()` | Services visible to a resident |
-| `POST /resident/vas/pay` | POST | `useMakeVasPayment()` | Resident pays for a service/utility |
+#### List Services
+```
+GET /config/utilities
+```
+**Hook:** `useServices()`
 
-All hooks are in `use-services.ts`. All need UI wiring.
+---
 
-**VAS Payment body:**
+#### Create or Edit a Service (with logo)
+```
+POST /config/utilities
+Content-Type: multipart/form-data
+```
+**Form fields:** `payload` (JSON string) + `logo` (File)
+**`payload` JSON shape:**
+```json
+{
+  "id": "string (omit for create)",
+  "name": "string",
+  "description": "string",
+  "walletID": "string",
+  "integrationID": "string",
+  "isActive": true
+}
+```
+**Hook:** `useCreateOrUpdateService()`
+
+---
+
+#### List Service Products
+```
+GET /config/utility-products
+```
+**Hook:** `useServiceProducts()`
+
+---
+
+#### Create or Edit a Service Product
+```
+POST /config/utility-products
+```
+**Body:**
+```json
+{
+  "id": "string (omit for create)",
+  "service_id": "string",
+  "name": "string",
+  "label": "string",
+  "description": "string",
+  "amount": 0,
+  "min_amount": 0,
+  "max_amount": 0,
+  "recurring_type": "string",
+  "is_active": true
+}
+```
+**Hook:** `useCreateOrUpdateServiceProduct()`
+
+---
+
+#### List Service Charges
+```
+GET /config/service-charges
+```
+**Hook:** `useServiceCharges()`
+
+---
+
+#### Create or Edit a Service Charge
+```
+POST /config/service-charges
+```
+**Body:**
+```json
+{
+  "id": "string (omit for create)",
+  "service_id": "string",
+  "community_id": "string",
+  "fee": 0,
+  "fee_type": "string",
+  "min_amount": 0,
+  "max_amount": 0,
+  "is_active": true,
+  "distributions": [
+    { "id": "string", "distribution_type": "string", "amount": 0, "wallet_id": "string" }
+  ]
+}
+```
+**Hook:** `useCreateOrUpdateServiceCharge()`
+
+---
+
+#### List Product Charges
+```
+GET /config/product-charges
+```
+**Hook:** `useProductCharges()`
+
+---
+
+#### Create or Edit a Product Charge
+```
+POST /config/product-charges
+```
+**Body:**
+```json
+{
+  "id": "string (omit for create)",
+  "product_id": "string",
+  "fee": 0,
+  "fee_type": "string",
+  "min_amount": 0,
+  "max_amount": 0,
+  "is_active": true,
+  "distributions": [
+    { "id": "string", "distribution_type": "string", "amount": 0, "wallet_id": "string" }
+  ]
+}
+```
+**Hook:** `useCreateOrUpdateProductCharge()`
+
+---
+
+#### List Community–Service Mappings
+```
+GET /config/service-communities
+```
+**Hook:** `useServiceCommunities()`
+
+---
+
+#### Map or Edit a Community Service
+```
+POST /config/utility-communities
+```
+**Body:**
+```json
+{
+  "id": "string (omit for create)",
+  "community_id": "string",
+  "service_id": "string",
+  "is_active": true
+}
+```
+**Hook:** `useMapServiceToCommunity()`
+
+---
+
+#### List Services for a Resident
+```
+GET /resident/services
+```
+**Hook:** `useResidentServices()`
+
+---
+
+#### Pay for a Service (VAS)
+```
+POST /resident/vas/pay
+```
+**Body:**
 ```json
 {
   "service_id": "string",
@@ -574,6 +765,7 @@ All hooks are in `use-services.ts`. All need UI wiring.
   "lookup_param": "string (e.g. meter number, phone number)"
 }
 ```
+**Hook:** `useMakeVasPayment()`
 
 ---
 

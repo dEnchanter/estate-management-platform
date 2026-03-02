@@ -44,13 +44,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useCommunityQR, useCommunityCategories, useCreateCommunityCategory } from "@/hooks/use-communities";
-import { useCommunityDues, useCreateDue, useDueCategories } from "@/hooks/use-dues";
+import { useCommunities, useCommunityQR, useCommunityCategories, useCreateCommunityCategory } from "@/hooks/use-communities";
+import { useCommunityDues, useCreateDue } from "@/hooks/use-dues";
 import { useWallets } from "@/hooks/use-wallets";
 import { useCommunityStreets, useCreateStreet, useToggleStreetStatus } from "@/hooks/use-streets";
 import { useCreateAccessRule } from "@/hooks/use-access-codes";
 import { DUE_TYPES, RECUR_TYPES } from "@/lib/constants";
 import type {
+  Community,
   CommunityQRResponse,
   CommunityCategory,
   Due,
@@ -62,26 +63,13 @@ import type {
 // TYPES
 // ============================================================================
 
-interface AccessCodeItem {
-  category: string;
-  codeType: string;
-  uses: number;
-  expiryTime: string;
-}
-
-// TODO: Replace with GET /community/access-rules endpoint when available
-const accessCodesData: AccessCodeItem[] = [
-  { category: "Family", codeType: "4-Digit", uses: 5, expiryTime: "23:59:59" },
-  { category: "Visitor", codeType: "5-Digit", uses: 3, expiryTime: "23:59:59" },
-  { category: "One-time", codeType: "6-Digit", uses: 1, expiryTime: "23:59:59" },
-];
-
 // ============================================================================
 // ZOD SCHEMAS
 // ============================================================================
 
 const addDueSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
   due_type: z.string().min(1, "Due type is required"),
   amount: z.number().optional(),
   recur_type: z.string().optional(),
@@ -388,23 +376,16 @@ const CollectionsTab = ({ data, isLoading, onAddDues, onDeleteItem }: Collection
 // ============================================================================
 
 interface AccessCodesTabProps {
-  data: AccessCodeItem[];
   onCreateRule: () => void;
-  onDeleteItem: (item: AccessCodeItem) => void;
 }
 
-const AccessCodesTab = ({ data, onCreateRule, onDeleteItem }: AccessCodesTabProps) => (
+const AccessCodesTab = ({ onCreateRule }: AccessCodesTabProps) => (
   <Card className="bg-white border border-gray-200 rounded-xl shadow-sm">
     <CardContent className="p-4">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <h2 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-base tracking-[-0.5px] leading-6">
-            Access Codes
-          </h2>
-          <Button variant="ghost" size="icon" className="h-7 w-7 p-0 hover:bg-gray-100 rounded-lg">
-            <FilterIcon />
-          </Button>
-        </div>
+        <h2 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-base tracking-[-0.5px] leading-6">
+          Access Codes
+        </h2>
         <Button
           onClick={onCreateRule}
           className="h-auto bg-gradient-to-r from-[#1f1f3f] to-[#2a2a4a] hover:from-[#2a2a4a] hover:to-[#1f1f3f] text-white rounded-lg px-5 py-2.5 transition-all duration-300 shadow-md hover:shadow-lg"
@@ -416,59 +397,13 @@ const AccessCodesTab = ({ data, onCreateRule, onDeleteItem }: AccessCodesTabProp
         </Button>
       </div>
 
-      {/* TODO: Replace with GET /community/access-rules endpoint when available */}
-      <div className="overflow-hidden">
-        <div className="grid grid-cols-[1fr_140px_100px_140px_80px] gap-4 px-4 py-3 bg-[#f0f0f5] rounded-t-lg">
-          {["Category", "Code type", "Uses", "Expiry time", "Actions"].map((h, i) => (
-            <span key={h} className={`[font-family:'SF_Pro-Bold',Helvetica] font-bold text-[#242426] text-xs uppercase tracking-wider${i === 4 ? " text-right" : ""}`}>
-              {h}
-            </span>
-          ))}
-        </div>
-
-        <ScrollArea className="w-full max-h-[400px]">
-          <div className="flex flex-col">
-            {data.map((item, index) => (
-              <div
-                key={index}
-                className={`grid grid-cols-[1fr_140px_100px_140px_80px] gap-4 px-4 py-3.5 ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#f9f9fb]"
-                } hover:bg-gray-100 transition-colors`}
-              >
-                <span className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm flex items-center">
-                  {item.category}
-                </span>
-                <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#242426] text-sm flex items-center">
-                  {item.codeType}
-                </span>
-                <span className="[font-family:'SF_Pro-Semibold',Helvetica] text-sm flex items-center text-[#242426]">
-                  {item.uses}
-                </span>
-                <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#242426] text-sm flex items-center">
-                  {item.expiryTime}
-                </span>
-                <div className="flex items-center justify-end">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 p-0 hover:bg-gray-200 rounded-md">
-                        <MoreVertical className="w-4 h-4 text-[#5b5b66]" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-36 bg-white">
-                      <DropdownMenuItem
-                        onClick={() => onDeleteItem(item)}
-                        className="cursor-pointer text-red-600 focus:text-red-600 [font-family:'SF_Pro-Regular',Helvetica] text-sm"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+      <div className="flex flex-col items-center justify-center py-12 gap-2">
+        <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm text-center">
+          No access rules have been configured yet.
+        </p>
+        <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] text-xs text-center">
+          Use &ldquo;Create Rule&rdquo; to define how each code category behaves for this community.
+        </p>
       </div>
     </CardContent>
   </Card>
@@ -682,11 +617,12 @@ interface InfoRowProps {
   value: string;
   highlight?: boolean;
   small?: boolean;
+  truncate?: boolean;
 }
 
-const InfoRow = ({ label, value, highlight = false, small = false }: InfoRowProps) => (
+const InfoRow = ({ label, value, highlight = false, small = false, truncate = false }: InfoRowProps) => (
   <div className="flex items-center justify-between group hover:bg-[#f9f9fb] px-3 py-1.5 rounded-lg transition-colors -mx-3">
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 shrink-0">
       <div className={`w-6 h-6 ${highlight ? "bg-[#e6f7f7]" : "bg-[#f4f4f9]"} rounded-md flex items-center justify-center transition-colors`}>
         <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
       </div>
@@ -694,103 +630,101 @@ const InfoRow = ({ label, value, highlight = false, small = false }: InfoRowProp
         {label}
       </span>
     </div>
-    <span className={`[font-family:'SF_Pro-${small ? "Medium" : "Semibold"}',Helvetica] ${small ? "font-medium" : "font-semibold"} ${highlight ? "text-[#00cccc]" : "text-[#242426]"} text-${small ? "xs" : "sm"}`}>
+    <span
+      title={truncate ? value : undefined}
+      className={`[font-family:'SF_Pro-${small ? "Medium" : "Semibold"}',Helvetica] ${small ? "font-medium" : "font-semibold"} ${highlight ? "text-[#00cccc]" : "text-[#242426]"} text-${small ? "xs" : "sm"} ${truncate ? "truncate max-w-[160px]" : ""}`}
+    >
       {value}
     </span>
   </div>
 );
 
 interface CommunityInfoCardProps {
+  community: Community | undefined;
   qrData: CommunityQRResponse | undefined;
   isLoading: boolean;
   communityId: string;
 }
 
-const CommunityInfoCard = ({ qrData, isLoading, communityId }: CommunityInfoCardProps) => (
-  <Card className="border border-gray-200 rounded-xl h-fit sticky top-4 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
-    <div className="relative w-full h-[205px] bg-gradient-to-br from-[#00cccc] to-[#00a0a0] overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
+const CommunityInfoCard = ({ community, qrData, isLoading, communityId }: CommunityInfoCardProps) => {
+  const name = community?.name || qrData?.name;
+  const addr = community?.address;
 
-      <div className="absolute inset-0 flex items-center justify-center">
-        {isLoading ? (
-          <Loader2 className="w-10 h-10 text-white animate-spin" />
-        ) : qrData?.logoUrl ? (
-          <img
-            src={qrData.logoUrl}
-            alt={qrData.name}
-            className="w-20 h-20 rounded-2xl object-cover border-2 border-white/30 shadow-xl"
-          />
-        ) : (
+  return (
+    <Card className="border border-gray-200 rounded-xl h-fit sticky top-4 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+      <div className="relative w-full h-[205px] bg-gradient-to-br from-[#00cccc] to-[#00a0a0] overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+
+        <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border-2 border-white/30 shadow-xl">
             <svg width="40" height="40" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M16 8L8 14V24H14V18H18V24H24V14L16 8Z" fill="white"/>
             </svg>
           </div>
-        )}
-      </div>
-
-      {qrData && (
-        <div className="absolute top-4 right-4">
-          <div className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full flex items-center gap-1.5">
-            <div className="w-2 h-2 bg-[#00cc66] rounded-full animate-pulse"></div>
-            <span className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-xs">
-              Active
-            </span>
-          </div>
         </div>
-      )}
-    </div>
 
-    <CardContent className="p-5 flex flex-col gap-4 bg-white">
-      <div className="flex flex-col gap-1">
-        <h3 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.6px] leading-6">
-          {isLoading ? "Loading..." : (qrData?.name || "—")}
-        </h3>
-        <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-xs">
-          Community Profile
-        </p>
-      </div>
-
-      <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-
-      <div className="flex flex-col gap-2.5">
-        <InfoRow label="Estate ID" value={qrData?.myCommunityID ? `#${qrData.myCommunityID}` : `#${communityId}`} />
-        <InfoRow label="Country" value={qrData?.address?.country || "—"} />
-        <InfoRow label="State" value={qrData?.address?.state || "—"} />
-        <InfoRow label="LGA" value={qrData?.address?.lga || "—"} />
-        <InfoRow label="ZIP Code" value={qrData?.address?.zipCode || "—"} />
-        <InfoRow label="Address" value={qrData?.address?.street || qrData?.address?.city || "—"} />
-
-        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent my-1"></div>
-
-        {/* TODO: Admin and created date not in QR response — wire when GET /community/:id returns admin info */}
-        <InfoRow label="Admin" value="—" highlight />
-        <InfoRow label="Created on" value="—" small />
-
-        {qrData?.qrCode && (
-          <div className="mt-2 flex flex-col items-center gap-2">
-            <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent w-full"></div>
-            <p className="[font-family:'SF_Pro-Medium',Helvetica] text-[#5b5b66] text-xs">Community QR Code</p>
-            <img
-              src={`data:image/png;base64,${qrData.qrCode}`}
-              alt="Community QR Code"
-              className="w-32 h-32 rounded-lg border border-gray-200"
-            />
+        {community && (
+          <div className="absolute top-4 right-4">
+            <div className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full flex items-center gap-1.5">
+              <div className="w-2 h-2 bg-[#00cc66] rounded-full animate-pulse"></div>
+              <span className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-xs">
+                Active
+              </span>
+            </div>
           </div>
         )}
       </div>
-    </CardContent>
-  </Card>
-);
+
+      <CardContent className="p-5 flex flex-col gap-4 bg-white">
+        <div className="flex flex-col gap-1">
+          <h3 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.6px] leading-6">
+            {isLoading ? "Loading..." : (name || "—")}
+          </h3>
+          <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-xs">
+            Community Profile
+          </p>
+        </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+
+        <div className="flex flex-col gap-2.5">
+          <InfoRow label="Estate ID" value={`#${communityId}`} />
+          <InfoRow label="Country" value={addr?.nationality || addr?.country || "Nigeria"} />
+          <InfoRow label="State" value={addr?.state || "Lagos"} />
+          <InfoRow label="City" value={addr?.city || "—"} />
+          <InfoRow label="Address" value={addr?.address || addr?.street || "—"} truncate />
+
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent my-1"></div>
+
+          {/* TODO: Admin and created date not in communities response — wire when available */}
+          <InfoRow label="Admin" value="—" highlight />
+          <InfoRow label="Created on" value="—" small />
+
+          {qrData?.qrCode && (
+            <div className="mt-2 flex flex-col items-center gap-2">
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent w-full"></div>
+              <p className="[font-family:'SF_Pro-Medium',Helvetica] text-[#5b5b66] text-xs">Community QR Code</p>
+              <img
+                src={`data:image/png;base64,${qrData.qrCode}`}
+                alt="Community QR Code"
+                className="w-32 h-32 rounded-lg border border-gray-200"
+              />
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 // ============================================================================
 // DIALOGS
@@ -805,7 +739,6 @@ interface AddDuesDialogProps {
 
 const AddDuesDialog = ({ open, onOpenChange, categories, wallets }: AddDuesDialogProps) => {
   const createDue = useCreateDue();
-  const { data: dueCategories } = useDueCategories();
 
   const {
     register,
@@ -827,6 +760,7 @@ const AddDuesDialog = ({ open, onOpenChange, categories, wallets }: AddDuesDialo
     try {
       await createDue.mutateAsync({
         name: data.name,
+        description: data.description,
         due_type: data.due_type,
         amount: data.amount,
         recur_type: data.recur_type,
@@ -861,6 +795,18 @@ const AddDuesDialog = ({ open, onOpenChange, categories, wallets }: AddDuesDialo
               className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
             />
             {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="due-description" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              Description <span className="text-gray-400 font-normal text-xs">(optional)</span>
+            </Label>
+            <Textarea
+              id="due-description"
+              {...register("description")}
+              placeholder="Enter a short description"
+              className="[font-family:'SF_Pro-Regular',Helvetica] text-sm min-h-[80px]"
+            />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -1309,16 +1255,22 @@ export default function CommunityDetailsPage(): JSX.Element {
   }>({ open: false, title: "", description: "", onConfirm: () => {} });
 
   // Data hooks
+  // useCommunities() was already called on the list page — this reads from
+  // the React Query cache so it costs zero extra network requests.
+  const { data: allCommunities } = useCommunities();
+  const community = allCommunities?.find((c) => c.myCommunityID === id || c.id === id);
+
   const { data: qrData, isLoading: qrLoading } = useCommunityQR(id);
   const { data: dues, isLoading: duesLoading } = useCommunityDues();
   const { data: categories, isLoading: categoriesLoading } = useCommunityCategories(id);
   const { data: wallets, isLoading: walletsLoading } = useWallets();
-  const communityCode = qrData?.myCommunityID || "";
-  const { data: streets, isLoading: streetsLoading } = useCommunityStreets(communityCode);
+  // id from the URL is the myCommunityID — use it directly so streets load
+  // in parallel with QR data rather than waiting for it to resolve first.
+  const { data: streets, isLoading: streetsLoading } = useCommunityStreets(id);
   const toggleStreetStatus = useToggleStreetStatus();
 
-  const communityName = qrData?.name || "Community Details";
-  const communityId = qrData?.myCommunityID || id;
+  const communityName = community?.name || qrData?.name || "Community Details";
+  const communityId = community?.myCommunityID || qrData?.myCommunityID || id;
   const totalBalance = (wallets || [])
     .reduce((sum, w) => sum + parseFloat(w.balance || "0"), 0)
     .toLocaleString();
@@ -1344,19 +1296,6 @@ export default function CommunityDetailsPage(): JSX.Element {
       onConfirm: () => {
         // TODO: Wire to DELETE /community/dues/:id endpoint when available
         console.log("Deleting due:", item.id);
-        setDeleteConfirmation((prev) => ({ ...prev, open: false }));
-      },
-    });
-  };
-
-  const handleDeleteAccessCode = (item: AccessCodeItem) => {
-    setDeleteConfirmation({
-      open: true,
-      title: "Delete Access Rule",
-      description: `Are you sure you want to delete the rule for "${item.category}"? This action cannot be undone.`,
-      onConfirm: () => {
-        // TODO: Wire to DELETE /access/community-rules/:id endpoint when available
-        console.log("Deleting access rule:", item.category);
         setDeleteConfirmation((prev) => ({ ...prev, open: false }));
       },
     });
@@ -1424,9 +1363,7 @@ export default function CommunityDetailsPage(): JSX.Element {
 
               <TabsContent value="accessCodes" className="mt-0 transition-all duration-300 animate-in fade-in-50">
                 <AccessCodesTab
-                  data={accessCodesData}
                   onCreateRule={() => setIsCreateRuleDialogOpen(true)}
-                  onDeleteItem={handleDeleteAccessCode}
                 />
               </TabsContent>
 
@@ -1442,7 +1379,7 @@ export default function CommunityDetailsPage(): JSX.Element {
               <TabsContent value="streets" className="mt-0 transition-all duration-300 animate-in fade-in-50">
                 <StreetsTab
                   data={streets || []}
-                  isLoading={streetsLoading || (qrLoading && !communityCode)}
+                  isLoading={streetsLoading}
                   onAddStreet={() => setIsAddStreetDialogOpen(true)}
                   onToggleStatus={handleToggleStreetStatus}
                 />
@@ -1450,7 +1387,7 @@ export default function CommunityDetailsPage(): JSX.Element {
             </Tabs>
           </div>
 
-          <CommunityInfoCard qrData={qrData} isLoading={qrLoading} communityId={id} />
+          <CommunityInfoCard community={community} qrData={qrData} isLoading={qrLoading} communityId={communityId} />
         </div>
       </section>
 
@@ -1469,13 +1406,13 @@ export default function CommunityDetailsPage(): JSX.Element {
       <AddStreetDialog
         open={isAddStreetDialogOpen}
         onOpenChange={setIsAddStreetDialogOpen}
-        communityCode={communityCode}
+        communityCode={id}
       />
 
       <CreateRuleDialog
         open={isCreateRuleDialogOpen}
         onOpenChange={setIsCreateRuleDialogOpen}
-        communityCode={communityCode}
+        communityCode={id}
       />
 
       <DeleteConfirmationDialog

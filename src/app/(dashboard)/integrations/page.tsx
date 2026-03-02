@@ -97,15 +97,15 @@ export default function IntegrationsPage(): JSX.Element {
         {/* Page Header */}
         <div className="flex items-center gap-4 px-2 py-2 w-full">
           <div className="flex flex-col items-start px-3 py-0 flex-1">
-            <h1 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px] leading-7 font-normal">
+            <h1 className="font-semibold text-[#242426] text-xl tracking-[-0.8px] leading-7">
               Integrations
             </h1>
             <div className="flex items-center gap-2">
-              <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] text-xs tracking-[-0.5px] leading-4 font-normal">
+              <span className="text-[#acacbf] text-xs">
                 Home
               </span>
               <img className="w-px h-3 object-cover" alt="Divider" src="/divider.svg" />
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#5b5b66] text-xs tracking-[-0.5px] leading-4">
+              <span className="font-medium text-[#5b5b66] text-xs">
                 All integrations
               </span>
             </div>
@@ -115,7 +115,7 @@ export default function IntegrationsPage(): JSX.Element {
             onClick={handleOpenCreate}
             className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors"
           >
-            <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+            <span className="font-medium text-white text-sm whitespace-nowrap">
               Add Integration
             </span>
           </Button>
@@ -125,41 +125,41 @@ export default function IntegrationsPage(): JSX.Element {
         <Dialog open={dialogState.open} onOpenChange={(open) => { if (!open) handleCloseDialog(); }}>
           <DialogContent className="sm:max-w-[500px] bg-white">
             <DialogHeader>
-              <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px]">
+              <DialogTitle className="font-semibold text-[#242426] text-xl">
                 {isEdit ? "Edit Integration" : "Add Integration"}
               </DialogTitle>
-              <DialogDescription className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm tracking-[-0.5px]">
+              <DialogDescription className="text-[#5b5b66] text-sm">
                 {isEdit ? "Update the integration details." : "Fill in the details to add a new integration."}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
-                  <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Name</Label>
+                  <Label className="font-medium text-[#242426] text-sm">Name</Label>
                   <Input
                     {...register("name")}
                     placeholder="Integration name"
-                    className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
+                    className="text-sm"
                   />
                   {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
                 </div>
                 <div className="grid gap-2">
-                  <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Method</Label>
+                  <Label className="font-medium text-[#242426] text-sm">Method</Label>
                   <Input
                     {...register("method")}
                     placeholder="e.g. REST, SOAP, GraphQL"
-                    className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
+                    className="text-sm"
                   />
                   {errors.method && <p className="text-red-500 text-xs">{errors.method.message}</p>}
                 </div>
                 <div className="grid gap-2">
-                  <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+                  <Label className="font-medium text-[#242426] text-sm">
                     Description (optional)
                   </Label>
                   <Textarea
                     {...register("description")}
                     placeholder="Brief description"
-                    className="[font-family:'SF_Pro-Regular',Helvetica] text-sm resize-none"
+                    className="text-sm resize-none"
                     rows={3}
                   />
                 </div>
@@ -198,7 +198,7 @@ export default function IntegrationsPage(): JSX.Element {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center gap-4 flex-1 w-full py-16">
                 <Loader2 className="w-10 h-10 text-[#1f1f3f] animate-spin" />
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base tracking-[-0.5px]">
+                <p className="text-[#5b5b66] text-base">
                   Loading integrations...
                 </p>
               </div>
@@ -207,11 +207,11 @@ export default function IntegrationsPage(): JSX.Element {
                 <div className="bg-red-50 p-4 rounded-full">
                   <img className="w-10 h-10" alt="Error icon" src="/frame-4.svg" />
                 </div>
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base text-center tracking-[-0.5px] max-w-md">
+                <p className="text-[#5b5b66] text-base text-center max-w-md">
                   Failed to load integrations. Please try again.
                 </p>
                 <Button onClick={() => refetch()} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2">
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm">Try Again</span>
+                  <span className="font-medium text-white text-sm">Try Again</span>
                 </Button>
               </div>
             ) : integrations.length === 0 ? (
@@ -219,7 +219,7 @@ export default function IntegrationsPage(): JSX.Element {
                 <div className="bg-[#f4f4f9] p-4 rounded-full">
                   <img className="w-10 h-10" alt="Integration icon" src="/frame-4.svg" />
                 </div>
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base text-center tracking-[-0.5px] max-w-md">
+                <p className="text-[#5b5b66] text-base text-center max-w-md">
                   No integrations have been added yet.
                   <br />
                   Click the button to add your first integration.
@@ -228,7 +228,7 @@ export default function IntegrationsPage(): JSX.Element {
                   onClick={handleOpenCreate}
                   className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2"
                 >
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm">
+                  <span className="font-medium text-white text-sm">
                     Add Integration
                   </span>
                 </Button>

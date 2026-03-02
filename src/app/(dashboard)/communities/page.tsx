@@ -1,17 +1,16 @@
 "use client";
 
-import { SlidersHorizontalIcon, Upload, X, Loader2 } from "lucide-react";
-import React, { JSX, useState, useMemo } from "react";
+import { SlidersHorizontalIcon, Upload, X, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import React, { JSX, useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CommunityDataTable, Community } from "@/components/communities/community-data-table";
-import { useCommunities, useCreateCommunity } from "@/hooks/use-communities";
-import { useCurrentUser } from "@/hooks/use-auth";
+import { useCommunities, useCreateCommunity, useCheckCommunityId } from "@/hooks/use-communities";
+import { useCheckUsername } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import type { CreateCommunityRequest } from "@/types/api.types";
 import {
@@ -20,24 +19,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 // Zod schema for create community form
 const createCommunitySchema = z.object({
   estateName: z.string().min(1, "Estate name is required"),
-  country: z.string().min(1, "Country is required"),
+  communityId: z.string().min(4, "Community ID must be at least 4 characters"),
+  address: z.string().min(1, "Street address is required"),
+  city: z.string().min(1, "City is required"),
+  lga: z.string().min(1, "LGA is required"),
   state: z.string().min(1, "State is required"),
-  lga: z.string().optional(),
-  zipCode: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
+  nationality: z.string().min(1, "Country is required"),
+  adminName: z.string().min(1, "Admin name is required"),
+  username: z.string().min(4, "Username must be at least 4 characters").regex(/^[a-zA-Z0-9]+$/, "Username must be alphanumeric only"),
+  adminPhone: z.string().min(1, "Admin phone is required"),
+  adminEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
 });
 
 type CreateCommunityFormData = z.infer<typeof createCommunitySchema>;
@@ -50,7 +47,6 @@ interface CreateCommunityDialogProps {
 
 const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProps) => {
   const createCommunity = useCreateCommunity();
-  const { data: currentUser } = useCurrentUser();
 
   // React Hook Form with Zod validation
   const {
@@ -64,19 +60,49 @@ const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProp
     resolver: zodResolver(createCommunitySchema),
     defaultValues: {
       estateName: "",
-      country: "",
-      state: "",
-      lga: "",
-      zipCode: "",
+      communityId: "",
       address: "",
+      city: "",
+      lga: "",
+      state: "",
+      nationality: "",
+      adminName: "",
+      username: "",
+      adminPhone: "",
+      adminEmail: "",
     },
   });
 
+  // Debounced username for validation
+  const usernameValue = watch("username");
+  const [debouncedUsername, setDebouncedUsername] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedUsername(usernameValue || ""), 500);
+    return () => clearTimeout(timer);
+  }, [usernameValue]);
+
+  const {
+    data: usernameCheck,
+    isLoading: isCheckingUsername,
+    isError: isUsernameError,
+  } = useCheckUsername(debouncedUsername);
+
+  // Debounced communityId for availability check
+  const communityIdValue = watch("communityId");
+  const [debouncedCommunityId, setDebouncedCommunityId] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedCommunityId(communityIdValue || ""), 500);
+    return () => clearTimeout(timer);
+  }, [communityIdValue]);
+
+  const {
+    data: communityIdCheck,
+    isLoading: isCheckingCommunityId,
+  } = useCheckCommunityId(debouncedCommunityId);
+
   // File state
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
-  const [coverPreview, setCoverPreview] = useState<string>("");
   const [logoError, setLogoError] = useState<string>("");
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,36 +118,19 @@ const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProp
     }
   };
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCoverFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const removeLogo = () => {
     setLogoFile(null);
     setLogoPreview("");
   };
 
-  const removeCover = () => {
-    setCoverFile(null);
-    setCoverPreview("");
-  };
-
-  // Reset form
+  // Reset form — `reset()` covers all registered fields via defaultValues
   const resetForm = () => {
     reset();
     setLogoFile(null);
-    setCoverFile(null);
     setLogoPreview("");
-    setCoverPreview("");
     setLogoError("");
+    setDebouncedUsername("");
+    setDebouncedCommunityId("");
   };
 
   // Handle form submission
@@ -133,10 +142,24 @@ const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProp
       return;
     }
 
-    // Validate current user data
-    if (!currentUser) {
-      toast.error("User session not found", {
-        description: "Please log in again",
+    // Validate communityId availability
+    if (communityIdCheck?.taken) {
+      toast.error("Community ID already taken", {
+        description: "Please choose a different community ID",
+      });
+      return;
+    }
+
+    // Validate username
+    if (isUsernameError) {
+      toast.error("Username already taken", {
+        description: "Please choose a different username",
+      });
+      return;
+    }
+    if (!usernameCheck?.success) {
+      toast.error("Invalid username", {
+        description: "Please enter a valid username before creating the community",
       });
       return;
     }
@@ -148,21 +171,24 @@ const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProp
       // Add logo file
       formData.append("logo", logoFile);
 
-      // Create payload object with admin details from current user
-      const payload = {
-        name: data.estateName,
-        address: {
-          country: data.country,
-          state: data.state,
-          lga: data.lga || "",
-          zipCode: data.zipCode || "",
-          street: data.address,
+      // Build payload matching CreateCommunityWithAdminRequest struct
+      const payload: CreateCommunityRequest = {
+        community: {
+          name: data.estateName,
+          address: {
+            address: data.address,
+            city: data.city,
+            lga: data.lga,
+            state: data.state,
+            nationality: data.nationality,
+          },
+          myCommunityID: data.communityId,
         },
-        admin: {
-          name: currentUser.name || "",
-          email: currentUser.email || "",
-          phone: currentUser.phone || "",
-          username: currentUser.username || "",
+        user: {
+          name: data.adminName,
+          username: data.username,
+          phone: data.adminPhone,
+          ...(data.adminEmail ? { email: data.adminEmail } : {}),
         },
       };
 
@@ -192,197 +218,275 @@ const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-lg">
+          <DialogTitle className="font-semibold text-[#242426] text-lg">
             Create Community
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 py-4">
-          {/* Estate Name */}
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="estate-name" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
-              Estate Name <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="estate-name"
-              {...register("estateName")}
-              placeholder="Enter estate name"
-              className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${
-                errors.estateName ? "border-red-500" : ""
-              }`}
-              disabled={createCommunity.isPending}
-            />
-            {errors.estateName && (
-              <p className="text-red-500 text-xs">{errors.estateName.message}</p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 py-2">
 
-          {/* Country and State */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="country" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
-                Country <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={watch("country")}
-                onValueChange={(value) => setValue("country", value)}
-                disabled={createCommunity.isPending}
-              >
-                <SelectTrigger className={`w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm ${
-                  errors.country ? "border-red-500" : ""
-                }`}>
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Nigeria">Nigeria</SelectItem>
-                  <SelectItem value="Ghana">Ghana</SelectItem>
-                  <SelectItem value="Kenya">Kenya</SelectItem>
-                  <SelectItem value="South Africa">South Africa</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.country && (
-                <p className="text-red-500 text-xs">{errors.country.message}</p>
-              )}
+          {/* ── Community Information ── */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">Community Information</span>
+              <div className="flex-1 h-px bg-gray-100" />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="state" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
-                State <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={watch("state")}
-                onValueChange={(value) => setValue("state", value)}
-                disabled={createCommunity.isPending}
-              >
-                <SelectTrigger className={`w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm ${
-                  errors.state ? "border-red-500" : ""
-                }`}>
-                  <SelectValue placeholder="Select state" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Lagos">Lagos</SelectItem>
-                  <SelectItem value="Abuja">Abuja</SelectItem>
-                  <SelectItem value="Rivers">Rivers</SelectItem>
-                  <SelectItem value="Oyo">Oyo</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.state && (
-                <p className="text-red-500 text-xs">{errors.state.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* LGA and Zip Code */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="lga" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
-                LGA
-              </Label>
-              <Select
-                value={watch("lga")}
-                onValueChange={(value) => setValue("lga", value)}
-                disabled={createCommunity.isPending}
-              >
-                <SelectTrigger className="w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm">
-                  <SelectValue placeholder="Select LGA" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Ikeja">Ikeja</SelectItem>
-                  <SelectItem value="Lekki">Lekki</SelectItem>
-                  <SelectItem value="Victoria Island">Victoria Island</SelectItem>
-                  <SelectItem value="Surulere">Surulere</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="zip-code" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
-                Zip Code
+            {/* Estate Name */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="estate-name" className="text-sm font-medium text-gray-700">
+                Estate Name <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="zip-code"
-                {...register("zipCode")}
-                placeholder="Enter zip code"
-                className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
+                id="estate-name"
+                {...register("estateName")}
+                placeholder="e.g. Greenville Estate"
+                className={`text-sm ${errors.estateName ? "border-red-500" : ""}`}
                 disabled={createCommunity.isPending}
               />
+              {errors.estateName && <p className="text-red-500 text-xs">{errors.estateName.message}</p>}
+            </div>
+
+            {/* Community ID */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="community-id" className="text-sm font-medium text-gray-700">
+                Community ID <span className="text-red-500">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="community-id"
+                  {...register("communityId")}
+                  placeholder="e.g. greenville01 (unique, alphanumeric)"
+                  className={`text-sm pr-8 ${errors.communityId ? "border-red-500" : ""}`}
+                  disabled={createCommunity.isPending}
+                />
+                {debouncedCommunityId.length >= 4 && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                    {isCheckingCommunityId ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                    ) : communityIdCheck?.taken ? (
+                      <XCircle className="w-4 h-4 text-red-500" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    )}
+                  </span>
+                )}
+              </div>
+              {errors.communityId && <p className="text-red-500 text-xs">{errors.communityId.message}</p>}
+              {debouncedCommunityId.length >= 4 && !isCheckingCommunityId && communityIdCheck && (
+                <p className={`text-xs ${communityIdCheck.taken ? "text-red-500" : "text-green-600"}`}>
+                  {communityIdCheck.taken ? "Community ID already taken" : "Community ID is available"}
+                </p>
+              )}
+            </div>
+
+            {/* Street Address */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="address" className="text-sm font-medium text-gray-700">
+                Street Address <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="address"
+                {...register("address")}
+                placeholder="e.g. 15 Cameron Road, Ikoyi"
+                className={`text-sm ${errors.address ? "border-red-500" : ""}`}
+                disabled={createCommunity.isPending}
+              />
+              {errors.address && <p className="text-red-500 text-xs">{errors.address.message}</p>}
+            </div>
+
+            {/* City + LGA */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="city" className="text-sm font-medium text-gray-700">
+                  City <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="city"
+                  {...register("city")}
+                  placeholder="e.g. Ikoyi"
+                  className={`text-sm ${errors.city ? "border-red-500" : ""}`}
+                  disabled={createCommunity.isPending}
+                />
+                {errors.city && <p className="text-red-500 text-xs">{errors.city.message}</p>}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="lga" className="text-sm font-medium text-gray-700">
+                  LGA <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="lga"
+                  {...register("lga")}
+                  placeholder="e.g. Lagos Island"
+                  className={`text-sm ${errors.lga ? "border-red-500" : ""}`}
+                  disabled={createCommunity.isPending}
+                />
+                {errors.lga && <p className="text-red-500 text-xs">{errors.lga.message}</p>}
+              </div>
+            </div>
+
+            {/* State + Country */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="state" className="text-sm font-medium text-gray-700">
+                  State <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="state"
+                  {...register("state")}
+                  placeholder="e.g. Lagos"
+                  className={`text-sm ${errors.state ? "border-red-500" : ""}`}
+                  disabled={createCommunity.isPending}
+                />
+                {errors.state && <p className="text-red-500 text-xs">{errors.state.message}</p>}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="nationality" className="text-sm font-medium text-gray-700">
+                  Country <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="nationality"
+                  {...register("nationality")}
+                  placeholder="e.g. Nigeria"
+                  className={`text-sm ${errors.nationality ? "border-red-500" : ""}`}
+                  disabled={createCommunity.isPending}
+                />
+                {errors.nationality && <p className="text-red-500 text-xs">{errors.nationality.message}</p>}
+              </div>
+            </div>
+
+            {/* Logo */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-medium text-gray-700">
+                Logo <span className="text-red-500">*</span>
+              </Label>
+              {logoPreview ? (
+                <div className="relative w-24 h-24 border border-gray-200 rounded-lg overflow-hidden">
+                  <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={removeLogo}
+                    className="absolute top-1 right-1 bg-red-600 text-white p-0.5 rounded-full hover:bg-red-700 transition-colors"
+                    disabled={createCommunity.isPending}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <label className={`flex items-center gap-3 px-4 py-3 border border-dashed rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors ${logoError ? "border-red-500" : "border-gray-300"} ${createCommunity.isPending ? "opacity-50 cursor-not-allowed" : ""}`}>
+                  <Upload className="w-5 h-5 text-gray-400 shrink-0" />
+                  <span className="text-sm text-gray-500">Click to upload community logo</span>
+                  <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" disabled={createCommunity.isPending} />
+                </label>
+              )}
+              {logoError && <p className="text-red-500 text-xs">{logoError}</p>}
             </div>
           </div>
 
-          {/* Address */}
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="address" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
-              Address <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="address"
-              {...register("address")}
-              placeholder="Enter estate address"
-              className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${
-                errors.address ? "border-red-500" : ""
-              }`}
-              disabled={createCommunity.isPending}
-            />
-            {errors.address && (
-              <p className="text-red-500 text-xs">{errors.address.message}</p>
-            )}
-          </div>
+          {/* ── Admin Information ── */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">Admin Information</span>
+              <div className="flex-1 h-px bg-gray-100" />
+            </div>
 
-          {/* Estate Logo */}
-          <div className="flex flex-col gap-2">
-            <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
-              Estate Logo <span className="text-red-500">*</span>
-            </Label>
-            {logoPreview ? (
-              <div className="relative w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden">
-                <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={removeLogo}
-                  className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                  disabled={createCommunity.isPending}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:border-gray-400 transition-colors ${
-                logoError ? "border-red-500" : "border-gray-300"
-              } ${createCommunity.isPending ? "opacity-50 cursor-not-allowed" : ""}`}>
-                <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="[font-family:'SF_Pro-Regular',Helvetica] text-sm text-gray-500">
-                  Click to upload logo
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  className="hidden"
+            {/* Name + Username */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="admin-name" className="text-sm font-medium text-gray-700">
+                  Full Name <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="admin-name"
+                  {...register("adminName")}
+                  placeholder="e.g. Chidi Okeke"
+                  className={`text-sm ${errors.adminName ? "border-red-500" : ""}`}
                   disabled={createCommunity.isPending}
                 />
-              </label>
-            )}
-            {logoError && (
-              <p className="text-red-500 text-xs">{logoError}</p>
-            )}
+                {errors.adminName && <p className="text-red-500 text-xs">{errors.adminName.message}</p>}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                  Username <span className="text-red-500">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="username"
+                    {...register("username")}
+                    placeholder="e.g. chidiokeke"
+                    className={`text-sm pr-8 ${errors.username ? "border-red-500" : ""}`}
+                    disabled={createCommunity.isPending}
+                  />
+                  {debouncedUsername.length >= 4 && (
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                      {isCheckingUsername ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                      ) : usernameCheck?.success ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-red-500" />
+                      )}
+                    </span>
+                  )}
+                </div>
+                {errors.username && <p className="text-red-500 text-xs">{errors.username.message}</p>}
+                {debouncedUsername.length >= 4 && !isCheckingUsername && (usernameCheck || isUsernameError) && (
+                  <p className={`text-xs ${usernameCheck?.success ? "text-green-600" : "text-red-500"}`}>
+                    {isUsernameError ? "Username already taken" : usernameCheck?.success ? "Username is valid" : ""}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Phone + Email */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="admin-phone" className="text-sm font-medium text-gray-700">
+                  Phone <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="admin-phone"
+                  {...register("adminPhone")}
+                  placeholder="e.g. +2348012345678"
+                  className={`text-sm ${errors.adminPhone ? "border-red-500" : ""}`}
+                  disabled={createCommunity.isPending}
+                />
+                {errors.adminPhone && <p className="text-red-500 text-xs">{errors.adminPhone.message}</p>}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="admin-email" className="text-sm font-medium text-gray-700">
+                  Email <span className="text-gray-400 font-normal text-xs">(optional)</span>
+                </Label>
+                <Input
+                  id="admin-email"
+                  type="email"
+                  {...register("adminEmail")}
+                  placeholder="e.g. chidi@estate.com"
+                  className={`text-sm ${errors.adminEmail ? "border-red-500" : ""}`}
+                  disabled={createCommunity.isPending}
+                />
+                {errors.adminEmail && <p className="text-red-500 text-xs">{errors.adminEmail.message}</p>}
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 mt-4">
+          <div className="flex gap-3 pt-2 border-t border-gray-100">
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                onOpenChange(false);
-                resetForm();
-              }}
-              className="flex-1 [font-family:'SF_Pro-Medium',Helvetica] text-sm"
+              onClick={() => { onOpenChange(false); resetForm(); }}
+              className="flex-1 text-sm"
               disabled={createCommunity.isPending}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white [font-family:'SF_Pro-Medium',Helvetica] text-sm"
+              className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white text-sm"
               disabled={createCommunity.isPending}
             >
               {createCommunity.isPending ? (
@@ -390,9 +494,7 @@ const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProp
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Creating...
                 </span>
-              ) : (
-                "Create Community"
-              )}
+              ) : "Create Community"}
             </Button>
           </div>
         </form>
@@ -403,7 +505,6 @@ const CreateCommunityDialog = ({ open, onOpenChange }: CreateCommunityDialogProp
 
 export default function CommunitiesPage(): JSX.Element {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   // Fetch communities from API
@@ -455,12 +556,12 @@ export default function CommunitiesPage(): JSX.Element {
         {/* Page Header */}
         <div className="flex items-center gap-4 px-2 py-2 w-full">
           <div className="flex flex-col items-start px-3 py-0 flex-1">
-            <h1 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px] leading-7 font-normal">
+            <h1 className="font-semibold text-[#242426] text-xl tracking-[-0.8px] leading-7 font-normal">
               Communities
             </h1>
 
             <div className="flex items-center gap-2">
-              <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] text-xs tracking-[-0.5px] leading-4 font-normal">
+              <span className="text-[#acacbf] text-xs tracking-[-0.5px] leading-4 font-normal">
                 Home
               </span>
 
@@ -470,14 +571,14 @@ export default function CommunitiesPage(): JSX.Element {
                 src="/divider.svg"
               />
 
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#5b5b66] text-xs tracking-[-0.5px] leading-4">
+              <span className="font-mediumtext-[#5b5b66] text-xs tracking-[-0.5px] leading-4">
                 Communities
               </span>
             </div>
           </div>
 
           <Button onClick={() => setIsCreateDialogOpen(true)} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors">
-            <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+            <span className="font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
               Create Community
             </span>
           </Button>
@@ -488,28 +589,25 @@ export default function CommunitiesPage(): JSX.Element {
           <CardContent className="flex flex-col items-start gap-4 p-6 flex-1">
             {/* Tabs and Filter */}
             <div className="flex items-center gap-6 w-full">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-                <TabsList className="inline-flex items-center gap-1 p-1 bg-[#f4f4f9] rounded-xl h-auto">
-                  <TabsTrigger
-                    value="all"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
-                  >
-                    All communities
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="active"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
-                  >
-                    Active
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="inactive"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
-                  >
-                    Inactive
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex items-center gap-1 border-b border-gray-200 flex-1">
+                <button
+                  className="px-4 py-2.5 text-sm font-medium text-[#1f1f3f] border-b-2 border-[#1f1f3f] -mb-px transition-colors"
+                >
+                  All communities
+                </button>
+                <span
+                  className="px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed select-none"
+                  title="Coming soon"
+                >
+                  Active
+                </span>
+                <span
+                  className="px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed select-none"
+                  title="Coming soon"
+                >
+                  Inactive
+                </span>
+              </div>
 
               <Button variant="ghost" size="icon" className="h-10 w-10 hover:bg-gray-100 rounded-lg transition-colors">
                 <SlidersHorizontalIcon className="w-5 h-5 text-[#5b5b66]" />
@@ -520,7 +618,7 @@ export default function CommunitiesPage(): JSX.Element {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center gap-4 px-0 py-16 flex-1 w-full">
                 <Loader2 className="w-10 h-10 text-[#1f1f3f] animate-spin" />
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6">
+                <p className="font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6">
                   Loading communities...
                 </p>
               </div>
@@ -535,7 +633,7 @@ export default function CommunitiesPage(): JSX.Element {
                     />
                   </div>
 
-                  <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
+                  <p className="font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
                     Failed to load communities
                     <br />
                     Please try again or contact support if the problem persists
@@ -543,7 +641,7 @@ export default function CommunitiesPage(): JSX.Element {
                 </div>
 
                 <Button onClick={() => refetch()} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors">
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+                  <span className="font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
                     Try Again
                   </span>
                 </Button>
@@ -559,7 +657,7 @@ export default function CommunitiesPage(): JSX.Element {
                     />
                   </div>
 
-                  <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
+                  <p className="font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
                     No community has been created yet.
                     <br />
                     Click the button to create your first community
@@ -567,7 +665,7 @@ export default function CommunitiesPage(): JSX.Element {
                 </div>
 
                 <Button onClick={() => setIsCreateDialogOpen(true)} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors">
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+                  <span className="font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
                     Create Community
                   </span>
                 </Button>
@@ -575,9 +673,9 @@ export default function CommunitiesPage(): JSX.Element {
             ) : (
               <CommunityDataTable
                 data={communities}
+                onViewDetails={handleRowClick}
                 onEdit={handleEditCommunity}
                 onDelete={handleDeleteCommunity}
-                onRowClick={handleRowClick}
               />
             )}
           </CardContent>

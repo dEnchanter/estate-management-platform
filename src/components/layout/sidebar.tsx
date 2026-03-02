@@ -110,7 +110,7 @@ export const Sidebar = (): JSX.Element => {
     <aside className="fixed left-0 top-0 h-screen flex flex-col w-64 bg-white border-r border-gray-200">
       {/* Header */}
       <header className="px-6 py-4">
-        <h1 className="[font-family:'SF_Pro-Bold',Helvetica] font-bold text-[#1f1f3f] text-xl tracking-[-0.5px] whitespace-nowrap">
+        <h1 className="font-bold text-[#1f1f3f] text-xl tracking-[-0.5px] whitespace-nowrap">
           Zamani
         </h1>
       </header>
@@ -129,7 +129,7 @@ export const Sidebar = (): JSX.Element => {
                   className="w-full justify-start gap-3 px-3 py-2 h-10 rounded-lg opacity-40 pointer-events-none"
                 >
                   <img className="w-5 h-5 flex-shrink-0" alt={item.label} src={item.icon} />
-                  <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm tracking-[-0.3px]">
+                  <span className="text-[#5b5b66] text-sm tracking-[-0.3px]">
                     {item.label}
                   </span>
                 </Button>
@@ -159,8 +159,8 @@ export const Sidebar = (): JSX.Element => {
                 <span
                   className={`text-sm tracking-[-0.3px] ${
                     isActive
-                      ? "[font-family:'SF_Pro-Semibold',Helvetica] text-white"
-                      : "[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66]"
+                      ? "font-semibold text-white"
+                      : "text-[#5b5b66]"
                   }`}
                 >
                   {item.label}
@@ -175,16 +175,16 @@ export const Sidebar = (): JSX.Element => {
       <div className="border-t border-gray-200 p-3">
         <div className="flex items-center gap-3">
           <Avatar className="w-9 h-9 bg-[#e5e5ea] rounded-lg flex-shrink-0">
-            <AvatarFallback className="bg-[#e5e5ea] [font-family:'SF_Pro-Semibold',Helvetica] text-[#2f5fbf] text-sm">
+            <AvatarFallback className="bg-[#e5e5ea] font-semiboldtext-[#2f5fbf] text-sm">
               {userInitials}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1 min-w-0">
-            <div className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-sm tracking-[-0.3px] truncate">
+            <div className="font-semiboldtext-[#242426] text-sm tracking-[-0.3px] truncate">
               {user?.name || "User"}
             </div>
-            <div className="[font-family:'SF_Pro-Light',Helvetica] text-[#5b5b66] text-xs tracking-[-0.2px] truncate">
+            <div className="text-[#5b5b66] text-xs tracking-[-0.2px] truncate">
               {user?.email || ""}
             </div>
           </div>

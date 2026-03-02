@@ -45,7 +45,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   username: string;
-  profileType: "Developer" | "Resident" | "Community" | "System";
+  profileType: "Super Admin" | "Community" | "Resident" | "Developer" | "System";
   communityName?: string;
   communityCode?: string;
   communityLogo?: string;
@@ -107,12 +107,16 @@ export interface RolesResponse {
 // ============================================================================
 
 export interface CommunityAddress {
-  country?: string;
+  // Actual API field names (used when creating a community)
+  nationality?: string; // what the API stores for country
+  address?: string;     // what the API stores for street address
   state?: string;
   lga?: string;
-  zipCode?: string;
-  street?: string;
   city?: string;
+  // Legacy / alternate field names
+  country?: string;
+  street?: string;
+  zipCode?: string;
   [key: string]: unknown;
 }
 
@@ -127,13 +131,17 @@ export interface Community {
 }
 
 export interface CreateCommunityRequest {
-  name: string;
-  address: CommunityAddress;
-  admin: {
+  community: {
     name: string;
-    email: string;
-    phone: string;
+    address: Record<string, string>;
+    myCommunityID: string;
+    message?: string;
+  };
+  user: {
+    name: string;
     username: string;
+    phone: string;
+    email?: string;
   };
 }
 

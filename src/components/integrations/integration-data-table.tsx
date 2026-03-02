@@ -6,11 +6,13 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
   useReactTable,
+  RowSelectionState,
 } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,32 +29,39 @@ export interface IntegrationRow {
   isActive: boolean;
 }
 
-interface IntegrationActionsProps {
+function IntegrationActions({
+  integration,
+  onEdit,
+  onDelete,
+}: {
   integration: IntegrationRow;
   onEdit?: (i: IntegrationRow) => void;
   onDelete?: (i: IntegrationRow) => void;
-}
-
-function IntegrationActions({ integration, onEdit, onDelete }: IntegrationActionsProps) {
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-          <MoreVertical className="w-4 h-4 text-[#5b5b66]" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40 bg-white">
+      <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem
-          onClick={() => onEdit?.(integration)}
-          className="cursor-pointer [font-family:'SF_Pro-Regular',Helvetica] text-sm text-[#242426]"
+          onClick={(e) => { e.stopPropagation(); onEdit?.(integration); }}
+          className="cursor-pointer text-sm"
         >
-          <Pencil className="w-4 h-4 mr-2 text-[#5b5b66]" />
+          <Pencil className="w-4 h-4 mr-2" />
           Edit
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => onDelete?.(integration)}
-          className="cursor-pointer [font-family:'SF_Pro-Regular',Helvetica] text-sm text-red-600 focus:text-red-600"
+          onClick={(e) => { e.stopPropagation(); onDelete?.(integration); }}
+          className="cursor-pointer text-sm text-red-600 focus:text-red-600"
         >
           <Trash2 className="w-4 h-4 mr-2" />
           Delete
@@ -64,13 +73,38 @@ function IntegrationActions({ integration, onEdit, onDelete }: IntegrationAction
 
 const getColumns = (
   onEdit?: (i: IntegrationRow) => void,
-  onDelete?: (i: IntegrationRow) => void
+  onDelete?: (i: IntegrationRow) => void,
 ): ColumnDef<IntegrationRow>[] => [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected()
+            ? true
+            : table.getIsSomePageRowsSelected()
+            ? "indeterminate"
+            : false
+        }
+        onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+        onClick={(e) => e.stopPropagation()}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(v) => row.toggleSelected(!!v)}
+        onClick={(e) => e.stopPropagation()}
+        aria-label="Select row"
+      />
+    ),
+  },
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <span className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
+      <span className="text-sm font-medium text-gray-900">
         {row.getValue("name")}
       </span>
     ),
@@ -79,7 +113,7 @@ const getColumns = (
     accessorKey: "method",
     header: "Method",
     cell: ({ row }) => (
-      <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
+      <span className="text-sm text-gray-700">
         {row.getValue("method")}
       </span>
     ),
@@ -88,19 +122,27 @@ const getColumns = (
     accessorKey: "description",
     header: "Description",
     cell: ({ row }) => (
-      <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm tracking-[-0.5px] truncate block max-w-[200px]">
+      <span className="text-sm text-gray-500 truncate block max-w-[260px]">
         {row.getValue("description") || "—"}
       </span>
     ),
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => (
-      <IntegrationActions integration={row.original} onEdit={onEdit} onDelete={onDelete} />
+      <div className="flex justify-end">
+        <IntegrationActions
+          integration={row.original}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
     ),
   },
 ];
+
+const PAGE_SIZE = 10;
 
 interface IntegrationDataTableProps {
   data: IntegrationRow[];
@@ -109,101 +151,120 @@ interface IntegrationDataTableProps {
 }
 
 export function IntegrationDataTable({ data, onEdit, onDelete }: IntegrationDataTableProps) {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 12 });
-  const columns = getColumns(onEdit, onDelete);
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const table = useReactTable({
     data,
-    columns,
+    columns: getColumns(onEdit, onDelete),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
-    state: { pagination },
+    onRowSelectionChange: setRowSelection,
+    state: { pagination, rowSelection },
   });
 
+  const { pageIndex, pageSize } = pagination;
+  const totalRows = data.length;
   const totalPages = table.getPageCount();
-  const currentPage = pagination.pageIndex + 1;
-
-  const colWidths: Record<string, string> = {
-    name: "w-[180px]",
-    method: "w-[140px]",
-    description: "flex-1",
-    actions: "w-14",
-  };
+  const from = totalRows === 0 ? 0 : pageIndex * pageSize + 1;
+  const to = Math.min((pageIndex + 1) * pageSize, totalRows);
 
   return (
-    <>
-      <div className="flex flex-col gap-3 w-full flex-1">
-        <div className="flex items-center gap-4 p-2 w-full bg-[#f4f4f9] rounded-lg">
-          {table.getHeaderGroups()[0].headers.map((header, index) => (
-            <div
-              key={header.id}
-              className={`flex items-center ${colWidths[header.id] || "w-20"} ${
-                index < table.getHeaderGroups()[0].headers.length - 1 ? "border-r border-[#e5e5ea]" : ""
-              }`}
-            >
-              <span className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
-                {flexRender(header.column.columnDef.header, header.getContext())}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <ScrollArea className="w-full h-[450px]">
-          <div className="flex flex-col items-start w-full">
-            {table.getRowModel().rows.map((row, rowIndex) => (
-              <div
-                key={row.id}
-                className={`flex items-center gap-4 p-2 w-full ${
-                  rowIndex % 2 === 1 ? "bg-[#f9f9fb]" : "bg-white"
-                } border-b border-[#f4f4f9] hover:bg-[#f4f4f9] transition-colors`}
-              >
-                {row.getVisibleCells().map((cell, cellIndex) => (
-                  <div
-                    key={cell.id}
-                    className={`flex items-center ${colWidths[cell.column.id] || "w-20"} ${
-                      cellIndex < row.getVisibleCells().length - 1 ? "border-r border-[#eaeaef]" : ""
-                    }`}
+    <div className="flex flex-col gap-4 w-full">
+      {/* Table */}
+      <div className="w-full overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            {table.getHeaderGroups().map((hg) => (
+              <tr key={hg.id} className="bg-gray-50 border-b border-gray-200">
+                {hg.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className={`px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider
+                      ${header.id === "select" ? "w-10" : ""}
+                      ${header.id === "actions" ? "w-16" : ""}
+                    `}
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </div>
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
                 ))}
-              </div>
+              </tr>
             ))}
-          </div>
-        </ScrollArea>
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row, i) => (
+              <tr
+                key={row.id}
+                className={`border-b border-gray-100 transition-colors
+                  ${i % 2 === 0 ? "bg-white" : "bg-gray-50/60"}
+                  ${row.getIsSelected() ? "bg-blue-50" : ""}
+                `}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="px-4 py-3.5">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <div className="flex items-center justify-between p-2 w-full bg-[#f4f4f9] rounded-lg mt-auto">
-        <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm tracking-[-0.5px]">
-          Showing {Math.min(pagination.pageSize * pagination.pageIndex + 1, data.length)}–
-          {Math.min(pagination.pageSize * (pagination.pageIndex + 1), data.length)} of {data.length} integrations
-        </span>
+      {/* Pagination */}
+      <div className="flex items-center justify-between px-1">
+        <p className="text-sm text-gray-500">
+          {totalRows === 0
+            ? "No results"
+            : `Showing ${from}–${to} of ${totalRows} integration${totalRows !== 1 ? "s" : ""}`}
+        </p>
 
         <div className="flex items-center gap-1">
-          {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant="ghost"
-              className="h-auto w-10 p-2 hover:bg-transparent"
-              onClick={() => table.setPageIndex(page - 1)}
-            >
-              <span className={`${currentPage === page ? "text-[#1f1f3f] font-semibold" : "text-[#5b5b66]"} text-sm`}>
-                {page}
-              </span>
-            </Button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8 p-0" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-            <ChevronLeft className="w-4 h-4 text-[#5b5b66]" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 p-0" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-            <ChevronRight className="w-4 h-4 text-[#5b5b66]" />
+
+          {Array.from({ length: totalPages }, (_, i) => i).map((i) => {
+            const page = i + 1;
+            const current = pageIndex + 1;
+            if (totalPages <= 5 || page === 1 || page === totalPages || (page >= current - 1 && page <= current + 1)) {
+              return (
+                <Button
+                  key={i}
+                  variant={current === page ? "default" : "ghost"}
+                  size="icon"
+                  className={`h-8 w-8 text-sm ${current === page ? "bg-[#1f1f3f] text-white hover:bg-[#1f1f3f]/90" : "text-gray-600"}`}
+                  onClick={() => table.setPageIndex(i)}
+                >
+                  {page}
+                </Button>
+              );
+            }
+            if (page === current - 2 || page === current + 2) {
+              return <span key={i} className="text-gray-400 text-sm px-1">…</span>;
+            }
+            return null;
+          })}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -94,15 +94,15 @@ export default function PartnersPage(): JSX.Element {
         {/* Page Header */}
         <div className="flex items-center gap-4 px-2 py-2 w-full">
           <div className="flex flex-col items-start px-3 py-0 flex-1">
-            <h1 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px] leading-7 font-normal">
+            <h1 className="font-semibold text-[#242426] text-xl tracking-[-0.8px] leading-7">
               Partners
             </h1>
             <div className="flex items-center gap-2">
-              <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] text-xs tracking-[-0.5px] leading-4 font-normal">
+              <span className="text-[#acacbf] text-xs">
                 Home
               </span>
               <img className="w-px h-3 object-cover" alt="Divider" src="/divider.svg" />
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#5b5b66] text-xs tracking-[-0.5px] leading-4">
+              <span className="font-medium text-[#5b5b66] text-xs">
                 All partners
               </span>
             </div>
@@ -111,45 +111,45 @@ export default function PartnersPage(): JSX.Element {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors">
-                <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+                <span className="font-medium text-white text-sm whitespace-nowrap">
                   Create Partner
                 </span>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] bg-white">
               <DialogHeader>
-                <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px]">
+                <DialogTitle className="font-semibold text-[#242426] text-xl">
                   Create New Partner
                 </DialogTitle>
-                <DialogDescription className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm tracking-[-0.5px]">
+                <DialogDescription className="text-[#5b5b66] text-sm">
                   Fill in the details to create a new partner account.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
-                    <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Name</Label>
-                    <Input {...register("name")} placeholder="Enter partner name" className="[font-family:'SF_Pro-Regular',Helvetica] text-sm" />
+                    <Label className="font-medium text-[#242426] text-sm">Name</Label>
+                    <Input {...register("name")} placeholder="Enter partner name" className="text-sm" />
                     {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
                   </div>
                   <div className="grid gap-2">
-                    <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Username</Label>
-                    <Input {...register("username")} placeholder="@username" className="[font-family:'SF_Pro-Regular',Helvetica] text-sm" />
+                    <Label className="font-medium text-[#242426] text-sm">Username</Label>
+                    <Input {...register("username")} placeholder="@username" className="text-sm" />
                     {errors.username && <p className="text-red-500 text-xs">{errors.username.message}</p>}
                   </div>
                   <div className="grid gap-2">
-                    <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Email Address</Label>
-                    <Input type="email" {...register("email")} placeholder="Enter email address" className="[font-family:'SF_Pro-Regular',Helvetica] text-sm" />
+                    <Label className="font-medium text-[#242426] text-sm">Email Address</Label>
+                    <Input type="email" {...register("email")} placeholder="Enter email address" className="text-sm" />
                     {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
                   </div>
                   <div className="grid gap-2">
-                    <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Phone Number</Label>
-                    <Input type="tel" {...register("phone")} placeholder="Enter phone number" className="[font-family:'SF_Pro-Regular',Helvetica] text-sm" />
+                    <Label className="font-medium text-[#242426] text-sm">Phone Number</Label>
+                    <Input type="tel" {...register("phone")} placeholder="Enter phone number" className="text-sm" />
                     {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
                   </div>
                   <div className="grid gap-2">
-                    <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Address (optional)</Label>
-                    <Input {...register("address")} placeholder="Enter address" className="[font-family:'SF_Pro-Regular',Helvetica] text-sm" />
+                    <Label className="font-medium text-[#242426] text-sm">Address (optional)</Label>
+                    <Input {...register("address")} placeholder="Enter address" className="text-sm" />
                   </div>
                 </div>
                 <DialogFooter className="gap-2">
@@ -171,7 +171,7 @@ export default function PartnersPage(): JSX.Element {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center gap-4 flex-1 w-full py-16">
                 <Loader2 className="w-10 h-10 text-[#1f1f3f] animate-spin" />
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base tracking-[-0.5px]">
+                <p className="text-[#5b5b66] text-base">
                   Loading partners...
                 </p>
               </div>
@@ -180,11 +180,11 @@ export default function PartnersPage(): JSX.Element {
                 <div className="bg-red-50 p-4 rounded-full">
                   <img className="w-10 h-10" alt="Error icon" src="/frame-4.svg" />
                 </div>
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base text-center tracking-[-0.5px] max-w-md">
+                <p className="text-[#5b5b66] text-base text-center max-w-md">
                   Failed to load partners. Please try again.
                 </p>
                 <Button onClick={() => refetch()} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2">
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm">Try Again</span>
+                  <span className="font-medium text-white text-sm">Try Again</span>
                 </Button>
               </div>
             ) : partners.length === 0 ? (
@@ -192,13 +192,13 @@ export default function PartnersPage(): JSX.Element {
                 <div className="bg-[#f4f4f9] p-4 rounded-full">
                   <img className="w-10 h-10" alt="Partner icon" src="/frame-4.svg" />
                 </div>
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base text-center tracking-[-0.5px] max-w-md">
+                <p className="text-[#5b5b66] text-base text-center max-w-md">
                   No partners have been created yet.
                   <br />
                   Click the button to create your first partner.
                 </p>
                 <Button onClick={() => setIsDialogOpen(true)} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2">
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm">Create Partner</span>
+                  <span className="font-medium text-white text-sm">Create Partner</span>
                 </Button>
               </div>
             ) : (

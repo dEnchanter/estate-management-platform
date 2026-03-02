@@ -85,22 +85,22 @@ const ApproveResidentDialog = ({ open, onOpenChange, resident }: ApproveResident
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-lg">
+          <DialogTitle className="font-semibold text-[#242426] text-lg">
             Approve Resident
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 py-4">
           {resident && (
-            <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm">
+            <p className="text-[#5b5b66] text-sm">
               Approving <span className="font-semibold text-[#242426]">{resident.name}</span>. Select a category to assign.
             </p>
           )}
           <div className="flex flex-col gap-2">
-            <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+            <Label className="font-medium text-[#242426] text-sm">
               Resident Category <span className="text-red-500">*</span>
             </Label>
             <Select onValueChange={(v) => setValue("categoryID", v)} disabled={categoriesLoading || approveResident.isPending}>
-              <SelectTrigger className="w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm">
+              <SelectTrigger className="w-full text-sm">
                 <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select a category"} />
               </SelectTrigger>
               <SelectContent>
@@ -112,10 +112,10 @@ const ApproveResidentDialog = ({ open, onOpenChange, resident }: ApproveResident
             {errors.categoryID && <p className="text-red-500 text-xs">{errors.categoryID.message}</p>}
           </div>
           <div className="flex gap-3 mt-2">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={approveResident.isPending} className="flex-1 [font-family:'SF_Pro-Medium',Helvetica] text-sm">
+            <Button type="button" variant="outline" onClick={handleClose} disabled={approveResident.isPending} className="flex-1 font-medium text-sm">
               Cancel
             </Button>
-            <Button type="submit" disabled={approveResident.isPending} className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white [font-family:'SF_Pro-Medium',Helvetica] text-sm">
+            <Button type="submit" disabled={approveResident.isPending} className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white font-medium text-sm">
               {approveResident.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Approve"}
             </Button>
           </div>
@@ -176,27 +176,27 @@ const EditUserDialog = ({ open, onOpenChange, user, onSuccess }: EditUserDialogP
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-lg">
+          <DialogTitle className="font-semibold text-[#242426] text-lg">
             Edit User
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="edit-name" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+            <Label htmlFor="edit-name" className="font-medium text-[#242426] text-sm">
               Full Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="edit-name"
               {...register("name")}
               placeholder="Enter full name"
-              className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.name ? "border-red-500" : ""}`}
+              className={`text-sm ${errors.name ? "border-red-500" : ""}`}
               disabled={updateUser.isPending}
             />
             {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="edit-email" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+            <Label htmlFor="edit-email" className="font-medium text-[#242426] text-sm">
               Email Address <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -204,14 +204,14 @@ const EditUserDialog = ({ open, onOpenChange, user, onSuccess }: EditUserDialogP
               type="email"
               {...register("email")}
               placeholder="Enter email address"
-              className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.email ? "border-red-500" : ""}`}
+              className={`text-sm ${errors.email ? "border-red-500" : ""}`}
               disabled={updateUser.isPending}
             />
             {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="edit-phone" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+            <Label htmlFor="edit-phone" className="font-medium text-[#242426] text-sm">
               Phone Number <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -219,17 +219,17 @@ const EditUserDialog = ({ open, onOpenChange, user, onSuccess }: EditUserDialogP
               type="tel"
               {...register("phone")}
               placeholder="Enter phone number"
-              className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.phone ? "border-red-500" : ""}`}
+              className={`text-sm ${errors.phone ? "border-red-500" : ""}`}
               disabled={updateUser.isPending}
             />
             {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
           </div>
 
           <div className="flex gap-3 mt-2">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={updateUser.isPending} className="flex-1 [font-family:'SF_Pro-Medium',Helvetica] text-sm">
+            <Button type="button" variant="outline" onClick={handleClose} disabled={updateUser.isPending} className="flex-1 font-medium text-sm">
               Cancel
             </Button>
-            <Button type="submit" disabled={updateUser.isPending} className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white [font-family:'SF_Pro-Medium',Helvetica] text-sm">
+            <Button type="submit" disabled={updateUser.isPending} className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white font-medium text-sm">
               {updateUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
             </Button>
           </div>
@@ -312,15 +312,15 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-lg">
+          <DialogTitle className="font-semibold text-[#242426] text-lg">
             Register Resident
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 py-4">
           {/* Community (read-only) */}
           <div className="flex flex-col gap-2">
-            <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Community</Label>
-            <div className="px-3 py-2 bg-[#f4f4f9] rounded-md [font-family:'SF_Pro-Regular',Helvetica] text-sm text-[#5b5b66]">
+            <Label className="font-medium text-[#242426] text-sm">Community</Label>
+            <div className="px-3 py-2 bg-[#f4f4f9] rounded-md text-sm text-[#5b5b66]">
               {communityName || communityCode || "—"}
             </div>
           </div>
@@ -328,25 +328,25 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
           {/* Username + Name */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 Username <span className="text-red-500">*</span>
               </Label>
               <Input
                 {...register("username")}
                 placeholder="e.g. johndoe"
-                className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.username ? "border-red-500" : ""}`}
+                className={`text-sm ${errors.username ? "border-red-500" : ""}`}
                 disabled={registerMutation.isPending}
               />
               {errors.username && <p className="text-red-500 text-xs">{errors.username.message}</p>}
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 Full Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 {...register("name")}
                 placeholder="John Doe"
-                className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.name ? "border-red-500" : ""}`}
+                className={`text-sm ${errors.name ? "border-red-500" : ""}`}
                 disabled={registerMutation.isPending}
               />
               {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
@@ -356,27 +356,27 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
           {/* Email + Phone */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 Email Address <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="email"
                 {...register("email")}
                 placeholder="john@email.com"
-                className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.email ? "border-red-500" : ""}`}
+                className={`text-sm ${errors.email ? "border-red-500" : ""}`}
                 disabled={registerMutation.isPending}
               />
               {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 Phone Number <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="tel"
                 {...register("phone")}
                 placeholder="+234 801 234 5678"
-                className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.phone ? "border-red-500" : ""}`}
+                className={`text-sm ${errors.phone ? "border-red-500" : ""}`}
                 disabled={registerMutation.isPending}
               />
               {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
@@ -386,7 +386,7 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
           {/* Type + Gender */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 Type <span className="text-red-500">*</span>
               </Label>
               <Select
@@ -394,7 +394,7 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
                 onValueChange={(v) => setValue("type", v as "Resident" | "Developer")}
                 disabled={registerMutation.isPending}
               >
-                <SelectTrigger className="w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm">
+                <SelectTrigger className="w-full text-sm">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -404,7 +404,7 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
               </Select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 Gender <span className="text-red-500">*</span>
               </Label>
               <Select
@@ -412,7 +412,7 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
                 onValueChange={(v) => setValue("gender", v as "Male" | "Female")}
                 disabled={registerMutation.isPending}
               >
-                <SelectTrigger className="w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm">
+                <SelectTrigger className="w-full text-sm">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
@@ -426,14 +426,14 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
           {/* Street + House Number */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 Street <span className="text-red-500">*</span>
               </Label>
               <Select
                 onValueChange={(v) => setValue("street", v)}
                 disabled={streetsLoading || registerMutation.isPending}
               >
-                <SelectTrigger className={`w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.street ? "border-red-500" : ""}`}>
+                <SelectTrigger className={`w-full text-sm ${errors.street ? "border-red-500" : ""}`}>
                   <SelectValue placeholder={streetsLoading ? "Loading streets..." : "Select street"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -445,13 +445,13 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
               {errors.street && <p className="text-red-500 text-xs">{errors.street.message}</p>}
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+              <Label className="font-medium text-[#242426] text-sm">
                 House/Unit No. <span className="text-red-500">*</span>
               </Label>
               <Input
                 {...register("number")}
                 placeholder="e.g. 12A"
-                className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.number ? "border-red-500" : ""}`}
+                className={`text-sm ${errors.number ? "border-red-500" : ""}`}
                 disabled={registerMutation.isPending}
               />
               {errors.number && <p className="text-red-500 text-xs">{errors.number.message}</p>}
@@ -460,23 +460,23 @@ const RegisterResidentDialog = ({ open, onOpenChange, communityCode, communityNa
 
           {/* Move-in Date */}
           <div className="flex flex-col gap-2">
-            <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">
+            <Label className="font-medium text-[#242426] text-sm">
               Move-in Date <span className="text-red-500">*</span>
             </Label>
             <Input
               type="date"
               {...register("movedIn")}
-              className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.movedIn ? "border-red-500" : ""}`}
+              className={`text-sm ${errors.movedIn ? "border-red-500" : ""}`}
               disabled={registerMutation.isPending}
             />
             {errors.movedIn && <p className="text-red-500 text-xs">{errors.movedIn.message}</p>}
           </div>
 
           <div className="flex gap-3 mt-2">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={registerMutation.isPending} className="flex-1 [font-family:'SF_Pro-Medium',Helvetica] text-sm">
+            <Button type="button" variant="outline" onClick={handleClose} disabled={registerMutation.isPending} className="flex-1 font-medium text-sm">
               Cancel
             </Button>
-            <Button type="submit" disabled={registerMutation.isPending} className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white [font-family:'SF_Pro-Medium',Helvetica] text-sm">
+            <Button type="submit" disabled={registerMutation.isPending} className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white font-medium text-sm">
               {registerMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Register Resident"}
             </Button>
           </div>
@@ -534,39 +534,39 @@ const CreateUserDialog = ({ open, onOpenChange, onSuccess }: CreateUserDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-lg">
+          <DialogTitle className="font-semibold text-[#242426] text-lg">
             Add New User
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="name" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Full Name <span className="text-red-500">*</span></Label>
-            <Input id="name" {...register("name")} placeholder="Enter full name" className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.name ? "border-red-500" : ""}`} disabled={createUser.isPending} />
+            <Label htmlFor="name" className="font-medium text-[#242426] text-sm">Full Name <span className="text-red-500">*</span></Label>
+            <Input id="name" {...register("name")} placeholder="Enter full name" className={`text-sm ${errors.name ? "border-red-500" : ""}`} disabled={createUser.isPending} />
             {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Email Address <span className="text-red-500">*</span></Label>
-            <Input id="email" type="email" {...register("email")} placeholder="Enter email address" className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.email ? "border-red-500" : ""}`} disabled={createUser.isPending} />
+            <Label htmlFor="email" className="font-medium text-[#242426] text-sm">Email Address <span className="text-red-500">*</span></Label>
+            <Input id="email" type="email" {...register("email")} placeholder="Enter email address" className={`text-sm ${errors.email ? "border-red-500" : ""}`} disabled={createUser.isPending} />
             {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="phone" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Phone Number <span className="text-red-500">*</span></Label>
-            <Input id="phone" type="tel" {...register("phone")} placeholder="Enter phone number" className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.phone ? "border-red-500" : ""}`} disabled={createUser.isPending} />
+            <Label htmlFor="phone" className="font-medium text-[#242426] text-sm">Phone Number <span className="text-red-500">*</span></Label>
+            <Input id="phone" type="tel" {...register("phone")} placeholder="Enter phone number" className={`text-sm ${errors.phone ? "border-red-500" : ""}`} disabled={createUser.isPending} />
             {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="username" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Username <span className="text-red-500">*</span></Label>
-            <Input id="username" {...register("username")} placeholder="Enter username" className={`[font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.username ? "border-red-500" : ""}`} disabled={createUser.isPending} />
+            <Label htmlFor="username" className="font-medium text-[#242426] text-sm">Username <span className="text-red-500">*</span></Label>
+            <Input id="username" {...register("username")} placeholder="Enter username" className={`text-sm ${errors.username ? "border-red-500" : ""}`} disabled={createUser.isPending} />
             {errors.username && <p className="text-red-500 text-xs">{errors.username.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="role" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm">Role <span className="text-red-500">*</span></Label>
+            <Label htmlFor="role" className="font-medium text-[#242426] text-sm">Role <span className="text-red-500">*</span></Label>
             <Select value={watch("roleName")} onValueChange={(value) => setValue("roleName", value)} disabled={createUser.isPending || rolesLoading}>
-              <SelectTrigger className={`w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm ${errors.roleName ? "border-red-500" : ""}`}>
+              <SelectTrigger className={`w-full text-sm ${errors.roleName ? "border-red-500" : ""}`}>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
@@ -583,10 +583,10 @@ const CreateUserDialog = ({ open, onOpenChange, onSuccess }: CreateUserDialogPro
           </div>
 
           <div className="flex gap-3 mt-4">
-            <Button type="button" variant="outline" onClick={() => { onOpenChange(false); resetForm(); }} className="flex-1 [font-family:'SF_Pro-Medium',Helvetica] text-sm" disabled={createUser.isPending}>
+            <Button type="button" variant="outline" onClick={() => { onOpenChange(false); resetForm(); }} className="flex-1 font-medium text-sm" disabled={createUser.isPending}>
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white [font-family:'SF_Pro-Medium',Helvetica] text-sm" disabled={createUser.isPending}>
+            <Button type="submit" className="flex-1 bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white font-medium text-sm" disabled={createUser.isPending}>
               {createUser.isPending ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" />Creating...</span> : "Add User"}
             </Button>
           </div>
@@ -610,7 +610,7 @@ export default function UsersPage(): JSX.Element {
   const [approveDialog, setApproveDialog] = useState<{ open: boolean; resident: { id: string; name: string } | null }>({ open: false, resident: null });
 
   const { data: currentUser } = useCurrentUser();
-  const canManageResidents = isCommunityAdmin(currentUser?.profileType);
+  const canManageResidents = isCommunityAdmin(currentUser?.userType);
   const communityCode = currentUser?.communityCode || "";
   const communityName = currentUser?.communityName || "";
 
@@ -678,24 +678,24 @@ export default function UsersPage(): JSX.Element {
         {/* Page Header */}
         <div className="flex items-center gap-4 px-2 py-2 w-full">
           <div className="flex flex-col items-start px-3 py-0 flex-1">
-            <h1 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px] leading-7 font-normal">
+            <h1 className="font-semibold text-[#242426] text-xl tracking-[-0.8px] leading-7">
               Users
             </h1>
             <div className="flex items-center gap-2">
-              <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] text-xs tracking-[-0.5px] leading-4 font-normal">Home</span>
+              <span className="text-[#acacbf] text-xs">Home</span>
               <img className="w-px h-3 object-cover" alt="Divider" src="/divider.svg" />
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#5b5b66] text-xs tracking-[-0.5px] leading-4">Users</span>
+              <span className="font-medium text-[#5b5b66] text-xs">Users</span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <Button onClick={() => setIsCreateDialogOpen(true)} variant="outline" className="h-auto rounded-lg px-4 py-2 transition-colors border-[#1f1f3f]">
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#1f1f3f] text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+              <span className="font-medium text-[#1f1f3f] text-sm whitespace-nowrap">
                 Add User
               </span>
             </Button>
             <Button onClick={() => setIsRegisterDialogOpen(true)} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors">
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+              <span className="font-medium text-white text-sm whitespace-nowrap">
                 Register Resident
               </span>
             </Button>
@@ -711,13 +711,13 @@ export default function UsersPage(): JSX.Element {
                 <TabsList className="inline-flex items-center gap-1 p-1 bg-[#f4f4f9] rounded-xl h-auto">
                   <TabsTrigger
                     value="all"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
+                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg text-[#5b5b66] text-sm transition-colors"
                   >
                     All Users
                   </TabsTrigger>
                   <TabsTrigger
                     value="pending"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
+                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg text-[#5b5b66] text-sm transition-colors"
                   >
                     Pending Approval
                   </TabsTrigger>
@@ -735,7 +735,7 @@ export default function UsersPage(): JSX.Element {
                 <div className="bg-[#f4f4f9] p-4 rounded-full">
                   <img className="w-10 h-10" alt="Lock icon" src="/frame-4.svg" />
                 </div>
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
+                <p className="text-[#5b5b66] text-base text-center max-w-md">
                   Resident management is scoped to Community Admins.
                   <br />
                   Log in as a Community Admin to view and manage users.
@@ -744,7 +744,7 @@ export default function UsersPage(): JSX.Element {
             ) : isLoading ? (
               <div className="flex flex-col items-center justify-center gap-4 px-0 py-16 flex-1 w-full">
                 <Loader2 className="w-10 h-10 text-[#1f1f3f] animate-spin" />
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6">
+                <p className="text-[#5b5b66] text-base text-center">
                   Loading users...
                 </p>
               </div>
@@ -753,13 +753,13 @@ export default function UsersPage(): JSX.Element {
                 <div className="bg-red-50 p-4 rounded-full">
                   <img className="w-10 h-10" alt="Error icon" src="/frame-4.svg" />
                 </div>
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
+                <p className="text-[#5b5b66] text-base text-center max-w-md">
                   Failed to load users.
                   <br />
                   Please try again or contact support if the problem persists.
                 </p>
                 <Button onClick={() => refetch()} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors">
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm tracking-[-0.5px] leading-5 whitespace-nowrap">
+                  <span className="font-medium text-white text-sm whitespace-nowrap">
                     Try Again
                   </span>
                 </Button>
@@ -769,7 +769,7 @@ export default function UsersPage(): JSX.Element {
                 <div className="bg-[#f4f4f9] p-4 rounded-full">
                   <img className="w-10 h-10" alt="Empty icon" src="/frame-4.svg" />
                 </div>
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
+                <p className="text-[#5b5b66] text-base text-center max-w-md">
                   {activeTab === "all"
                     ? "No users found."
                     : "No pending residents at the moment. Residents awaiting approval will appear here."}
@@ -825,21 +825,21 @@ export default function UsersPage(): JSX.Element {
       <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}>
         <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-lg">
+            <AlertDialogTitle className="font-semibold text-[#242426] text-lg">
               Delete User
             </AlertDialogTitle>
-            <AlertDialogDescription className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm">
+            <AlertDialogDescription className="text-[#5b5b66] text-sm">
               Are you sure you want to delete <span className="font-semibold text-[#242426]">{deleteDialog.user?.name}</span>? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="[font-family:'SF_Pro-Medium',Helvetica] text-sm">
+            <AlertDialogCancel className="font-medium text-sm">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={deleteUserMutation.isPending}
-              className="bg-red-600 hover:bg-red-700 text-white [font-family:'SF_Pro-Medium',Helvetica] text-sm"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium text-sm"
             >
               {deleteUserMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
             </AlertDialogAction>

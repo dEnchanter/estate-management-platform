@@ -106,13 +106,11 @@ export default function AdminsPage(): JSX.Element {
 
   const handleEditAdmin = (admin: Admin) => {
     // TODO: Wire to PUT /admins/:id endpoint when available
-    console.log("Edit admin:", admin);
     toast.info("Edit functionality coming soon");
   };
 
   const handleDeleteAdmin = (admin: Admin) => {
     // TODO: Wire to DELETE /admins/:id endpoint when available
-    console.log("Delete admin:", admin);
     toast.info("Delete functionality coming soon");
   };
 
@@ -122,15 +120,15 @@ export default function AdminsPage(): JSX.Element {
         {/* Page Header */}
         <div className="flex items-center gap-4 px-2 py-2 w-full">
           <div className="flex flex-col items-start px-3 py-0 flex-1">
-            <h1 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px] leading-7 font-normal">
+            <h1 className="font-semibold text-[#242426] text-xl tracking-[-0.8px] leading-7">
               Admins
             </h1>
             <div className="flex items-center gap-2">
-              <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] text-xs tracking-[-0.5px] leading-4 font-normal">
+              <span className="text-[#acacbf] text-xs">
                 Home
               </span>
               <img className="w-px h-3 object-cover" alt="Divider" src="/divider.svg" />
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#5b5b66] text-xs tracking-[-0.5px] leading-4">
+              <span className="font-medium text-[#5b5b66] text-xs">
                 All admins
               </span>
             </div>
@@ -139,38 +137,38 @@ export default function AdminsPage(): JSX.Element {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors">
-                <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+                <span className="font-medium text-white text-sm whitespace-nowrap">
                   Create Admin
                 </span>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] bg-white">
               <DialogHeader>
-                <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px]">
+                <DialogTitle className="font-semibold text-[#242426] text-xl">
                   Create New Admin
                 </DialogTitle>
-                <DialogDescription className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm tracking-[-0.5px]">
+                <DialogDescription className="text-[#5b5b66] text-sm">
                   Fill in the details to create a new admin account.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="name" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
+                    <Label htmlFor="name" className="font-medium text-[#242426] text-sm">
                       Name
                     </Label>
                     <Input
                       id="name"
                       {...register("name")}
                       placeholder="Enter admin name"
-                      className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
+                      className="text-sm"
                     />
                     {errors.name && (
-                      <p className="text-red-500 text-xs [font-family:'SF_Pro-Regular',Helvetica]">{errors.name.message}</p>
+                      <p className="text-red-500 text-xs">{errors.name.message}</p>
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="email" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
+                    <Label htmlFor="email" className="font-medium text-[#242426] text-sm">
                       Email Address
                     </Label>
                     <Input
@@ -178,21 +176,21 @@ export default function AdminsPage(): JSX.Element {
                       type="email"
                       {...register("email")}
                       placeholder="Enter email address"
-                      className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
+                      className="text-sm"
                     />
                     {errors.email && (
-                      <p className="text-red-500 text-xs [font-family:'SF_Pro-Regular',Helvetica]">{errors.email.message}</p>
+                      <p className="text-red-500 text-xs">{errors.email.message}</p>
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="roleName" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
+                    <Label htmlFor="roleName" className="font-medium text-[#242426] text-sm">
                       Role
                     </Label>
                     <Select
                       onValueChange={(value) => setValue("roleName", value)}
                       disabled={rolesLoading}
                     >
-                      <SelectTrigger className="w-full [font-family:'SF_Pro-Regular',Helvetica] text-sm">
+                      <SelectTrigger className="w-full text-sm">
                         <SelectValue placeholder={rolesLoading ? "Loading roles..." : "Select role"} />
                       </SelectTrigger>
                       <SelectContent>
@@ -204,11 +202,11 @@ export default function AdminsPage(): JSX.Element {
                       </SelectContent>
                     </Select>
                     {errors.roleName && (
-                      <p className="text-red-500 text-xs [font-family:'SF_Pro-Regular',Helvetica]">{errors.roleName.message}</p>
+                      <p className="text-red-500 text-xs">{errors.roleName.message}</p>
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="username" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
+                    <Label htmlFor="username" className="font-medium text-[#242426] text-sm">
                       Username
                     </Label>
                     <Input
@@ -216,14 +214,14 @@ export default function AdminsPage(): JSX.Element {
                       type="text"
                       {...register("username")}
                       placeholder="@username"
-                      className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
+                      className="text-sm"
                     />
                     {errors.username && (
-                      <p className="text-red-500 text-xs [font-family:'SF_Pro-Regular',Helvetica]">{errors.username.message}</p>
+                      <p className="text-red-500 text-xs">{errors.username.message}</p>
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="phone" className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">
+                    <Label htmlFor="phone" className="font-medium text-[#242426] text-sm">
                       Phone Number
                     </Label>
                     <Input
@@ -231,10 +229,10 @@ export default function AdminsPage(): JSX.Element {
                       type="tel"
                       {...register("phone")}
                       placeholder="Enter phone number"
-                      className="[font-family:'SF_Pro-Regular',Helvetica] text-sm"
+                      className="text-sm"
                     />
                     {errors.phone && (
-                      <p className="text-red-500 text-xs [font-family:'SF_Pro-Regular',Helvetica]">{errors.phone.message}</p>
+                      <p className="text-red-500 text-xs">{errors.phone.message}</p>
                     )}
                   </div>
                 </div>
@@ -244,14 +242,14 @@ export default function AdminsPage(): JSX.Element {
                     variant="outline"
                     onClick={handleCloseDialog}
                     disabled={createUserWithRole.isPending}
-                    className="[font-family:'SF_Pro-Medium',Helvetica] text-sm rounded-lg"
+                    className="text-sm rounded-lg"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={createUserWithRole.isPending}
-                    className="bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 [font-family:'SF_Pro-Medium',Helvetica] text-white text-sm rounded-lg"
+                    className="bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 text-white text-sm rounded-lg"
                   >
                     {createUserWithRole.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -274,19 +272,19 @@ export default function AdminsPage(): JSX.Element {
                 <TabsList className="inline-flex items-center gap-1 p-1 bg-[#f4f4f9] rounded-xl h-auto">
                   <TabsTrigger
                     value="all"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
+                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg text-[#5b5b66] text-sm transition-colors"
                   >
                     All admins
                   </TabsTrigger>
                   <TabsTrigger
                     value="operations"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
+                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg text-[#5b5b66] text-sm transition-colors"
                   >
                     Operations
                   </TabsTrigger>
                   <TabsTrigger
                     value="security"
-                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg [font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5 transition-colors"
+                    className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg text-[#5b5b66] text-sm transition-colors"
                   >
                     Security
                   </TabsTrigger>
@@ -305,7 +303,7 @@ export default function AdminsPage(): JSX.Element {
                   <div className="bg-[#f4f4f9] p-4 rounded-full">
                     <img className="w-10 h-10" alt="Admin icon" src="/frame-4.svg" />
                   </div>
-                  <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-base text-center tracking-[-0.5px] leading-6 max-w-md">
+                  <p className="text-[#5b5b66] text-base text-center max-w-md">
                     No admin has been created yet.
                     <br />
                     Click the button to create your first admin
@@ -315,7 +313,7 @@ export default function AdminsPage(): JSX.Element {
                   onClick={() => setIsDialogOpen(true)}
                   className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2 transition-colors"
                 >
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm text-center tracking-[-0.5px] leading-5 whitespace-nowrap">
+                  <span className="font-medium text-white text-sm whitespace-nowrap">
                     Create Admin
                   </span>
                 </Button>
