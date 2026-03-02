@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreVertical, Users, Building2, UserCog, Wallet, LucideIcon, Loader2, Plus } from "lucide-react";
+import { MoreHorizontal, Users, Building2, UserCog, Wallet, LucideIcon, Loader2, Plus } from "lucide-react";
 import React, { JSX, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,17 +42,13 @@ interface StatData {
 
 const PageHeader = ({ title }: { title: string }) => (
   <nav className="flex flex-col justify-center px-2 py-2 w-full">
-    <h1 className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px] leading-7 font-normal">
+    <h1 className="font-semibold text-[#242426] text-xl tracking-[-0.8px] leading-7">
       {title}
     </h1>
     <div className="flex items-center gap-2">
-      <span className="[font-family:'SF_Pro-Regular',Helvetica] text-[#acacbf] text-xs tracking-[-0.5px] leading-4 font-normal">
-        Dashboard
-      </span>
+      <span className="text-[#acacbf] text-xs">Dashboard</span>
       <img className="w-px h-3 object-cover" alt="Divider" src="/divider.svg" />
-      <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#5b5b66] text-xs tracking-[-0.5px] leading-4">
-        Home
-      </span>
+      <span className="font-medium text-[#5b5b66] text-xs">Home</span>
     </div>
   </nav>
 );
@@ -68,19 +63,19 @@ const StatCard = ({ stat }: { stat: StatData }) => {
             <Icon className={`w-5 h-5 ${stat.iconColor}`} />
           </div>
         </div>
-        <p className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#5b5b66] text-xs tracking-[-0.3px] leading-4 uppercase">
+        <p className="font-medium text-[#5b5b66] text-xs tracking-[-0.3px] leading-4 uppercase">
           {stat.label}
         </p>
         <div className="flex items-baseline gap-1">
           {stat.currency ? (
             <>
-              <span className="[font-family:'SF_Pro-Semibold',Helvetica] font-semibold text-[#242426] text-2xl tracking-[-1px] leading-7">
+              <span className="font-semibold text-[#242426] text-2xl tracking-[-1px] leading-7">
                 ₦{stat.value}
               </span>
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-[#acacbf] text-sm">.00</span>
+              <span className="font-medium text-[#acacbf] text-sm">.00</span>
             </>
           ) : (
-            <span className="[font-family:'SF_Pro-Semibold',Helvetica] font-semibold text-[#242426] text-3xl tracking-[-1px] leading-8">
+            <span className="font-semibold text-[#242426] text-3xl tracking-[-1px] leading-8">
               {stat.value}
             </span>
           )}
@@ -233,9 +228,7 @@ function AdminDashboardView() {
         {/* Collections Grid */}
         <Card className="w-full bg-white rounded-xl shadow-sm">
           <CardContent className="p-4 flex flex-col items-start gap-3">
-            <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5">
-              Collections
-            </p>
+            <p className="text-[#5b5b66] text-sm">Collections</p>
             {servicesLoading ? (
               <div className="flex items-center justify-center w-full py-8">
                 <Loader2 className="w-6 h-6 text-[#1f1f3f] animate-spin" />
@@ -254,7 +247,7 @@ function AdminDashboardView() {
                     >
                       <img className="absolute inset-0 w-full h-full" alt="Background" src={card.bgImage} />
                       <img className="absolute inset-0 w-full h-full object-cover" alt={card.title} src={card.image} />
-                      <p className="relative self-stretch [font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm tracking-[-0.4px] leading-5 z-10">
+                      <p className="relative self-stretch font-medium text-white text-sm tracking-[-0.4px] leading-5 z-10">
                         {card.title}
                       </p>
                     </div>
@@ -268,54 +261,59 @@ function AdminDashboardView() {
         {/* Communities Table */}
         <Card className="w-full bg-white rounded-xl">
           <CardContent className="p-4 flex flex-col items-start gap-3">
-            <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#5b5b66] text-sm tracking-[-0.5px] leading-5">
-              Communities
-            </p>
+            <p className="text-[#5b5b66] text-sm">Communities</p>
             {communitiesLoading ? (
               <div className="flex items-center justify-center w-full py-8">
                 <Loader2 className="w-6 h-6 text-[#1f1f3f] animate-spin" />
               </div>
             ) : (
-              <div className="flex flex-col items-start gap-2 w-full overflow-x-auto">
-                {/* Header */}
-                <div className="flex items-center gap-4 p-2 w-full bg-[#f4f4f9] rounded-lg">
-                  <div className="flex flex-col w-[160px] shrink-0 items-start justify-center border-r border-[#e5e5ea]">
-                    <p className="[font-family:'SF_Pro-Semibold',Helvetica] font-normal text-[#242426] text-sm tracking-[-0.5px] leading-5">Estate ID</p>
-                  </div>
-                  <div className="flex items-center gap-4 flex-1 min-w-0 border-r border-[#e5e5ea]">
-                    <p className="[font-family:'SF_Pro-Semibold',Helvetica] font-normal text-[#242426] text-sm tracking-[-0.5px] leading-5">Community</p>
-                  </div>
-                  <div className="flex w-14 shrink-0 items-center">
-                    <p className="[font-family:'SF_Pro-Semibold',Helvetica] font-normal text-[#242426] text-sm tracking-[-0.5px] leading-5">Actions</p>
-                  </div>
-                </div>
-                <ScrollArea className="w-full h-[350px]">
-                  <div className="flex flex-col items-start w-full">
+              <div className="w-full overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[#5b5b66] uppercase tracking-wide w-48">
+                        Estate ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-[#5b5b66] uppercase tracking-wide">
+                        Community
+                      </th>
+                      <th className="px-4 py-3 w-14" />
+                    </tr>
+                  </thead>
+                  <tbody>
                     {communityRows.map((community, index) => (
-                      <div
+                      <tr
                         key={index}
-                        className={`flex items-center gap-4 p-2 w-full ${index !== communityRows.length - 1 ? "border-b border-[#f4f4f9]" : ""} hover:bg-[#f4f4f9] transition-colors cursor-pointer`}
+                        className={`border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${
+                          index % 2 === 1 ? "bg-[#f9f9fb]" : "bg-white"
+                        }`}
                       >
-                        <div className="flex flex-col w-[160px] shrink-0 items-start justify-center border-r border-[#eaeaef]">
-                          <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#242426] text-sm tracking-[-0.5px] leading-5 truncate w-full pr-2">{community.estateId}</p>
-                        </div>
-                        <div className="flex items-center gap-3 flex-1 min-w-0 border-r border-[#eaeaef]">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={community.avatar} alt={community.name} />
-                            <AvatarFallback>{community.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-1 flex-col items-start min-w-0">
-                            <p className="[font-family:'SF_Pro-Regular',Helvetica] font-normal text-[#242426] text-sm tracking-[-0.5px] leading-5 truncate w-full">{community.name}</p>
-                            <p className="[font-family:'SF_Pro-Light',Helvetica] font-light text-[#5b5b66] text-xs tracking-[-0.4px] leading-4 truncate w-full">{community.address}</p>
+                        <td className="px-4 py-3 text-sm text-[#242426] font-mono truncate max-w-[192px]">
+                          {community.estateId}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-8 h-8 rounded-lg shrink-0">
+                              <AvatarImage src={community.avatar} alt={community.name} />
+                              <AvatarFallback className="rounded-lg bg-teal-500 text-white text-xs font-semibold">
+                                {community.name.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm text-[#242426] truncate">{community.name}</span>
+                              <span className="text-xs text-[#5b5b66] truncate">{community.address}</span>
+                            </div>
                           </div>
-                        </div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                          <MoreVertical className="w-4 h-4 text-[#5b5b66]" />
-                        </Button>
-                      </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="w-4 h-4 text-[#5b5b66]" />
+                          </Button>
+                        </td>
+                      </tr>
                     ))}
-                  </div>
-                </ScrollArea>
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>
@@ -378,7 +376,7 @@ function ResidentDashboardView() {
           <PageHeader title="Dashboard" />
           <div className="flex flex-col items-center justify-center gap-4 py-16 w-full">
             <Loader2 className="w-10 h-10 text-[#1f1f3f] animate-spin" />
-            <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base tracking-[-0.5px]">Loading your dashboard...</p>
+            <p className="text-[#5b5b66] text-base">Loading your dashboard...</p>
           </div>
         </section>
       </div>
@@ -394,9 +392,9 @@ function ResidentDashboardView() {
             <div className="bg-red-50 p-4 rounded-full">
               <img className="w-10 h-10" alt="Error" src="/frame-5.svg" />
             </div>
-            <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-base tracking-[-0.5px]">Failed to load dashboard.</p>
+            <p className="text-[#5b5b66] text-base">Failed to load dashboard.</p>
             <Button onClick={() => refetch()} className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-4 py-2">
-              <span className="[font-family:'SF_Pro-Medium',Helvetica] font-medium text-white text-sm tracking-[-0.5px]">Try Again</span>
+              <span className="font-medium text-white text-sm">Try Again</span>
             </Button>
           </div>
         </section>
@@ -433,18 +431,18 @@ function ResidentDashboardView() {
           {/* Recent Transactions */}
           <Card className="bg-white rounded-xl">
             <CardContent className="p-4 flex flex-col gap-3">
-              <p className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">Recent Transactions</p>
+              <p className="font-semibold text-[#242426] text-sm">Recent Transactions</p>
               {recentTransactions.length === 0 ? (
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm text-center py-8 tracking-[-0.5px]">No recent transactions</p>
+                <p className="text-[#5b5b66] text-sm text-center py-8">No recent transactions</p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {recentTransactions.slice(0, 5).map((txn, i) => (
                     <div key={i} className="flex items-center justify-between py-2 border-b border-[#f4f4f9] last:border-0">
                       <div>
-                        <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">{txn.description || "Transaction"}</p>
-                        <p className="[font-family:'SF_Pro-Light',Helvetica] text-[#5b5b66] text-xs tracking-[-0.4px]">{txn.createdAt ? new Date(txn.createdAt).toLocaleDateString() : "—"}</p>
+                        <p className="text-[#242426] text-sm">{txn.description || "Transaction"}</p>
+                        <p className="text-[#5b5b66] text-xs">{txn.createdAt ? new Date(txn.createdAt).toLocaleDateString() : "—"}</p>
                       </div>
-                      <span className={`[font-family:'SF_Pro-Semibold',Helvetica] text-sm tracking-[-0.5px] ${txn.type === "credit" ? "text-[#00cc66]" : "text-[#ff3333]"}`}>
+                      <span className={`font-semibold text-sm ${txn.type === "credit" ? "text-[#00cc66]" : "text-[#ff3333]"}`}>
                         {txn.type === "credit" ? "+" : "-"}₦{txn.amount?.toLocaleString()}
                       </span>
                     </div>
@@ -457,18 +455,18 @@ function ResidentDashboardView() {
           {/* Recent Access Codes */}
           <Card className="bg-white rounded-xl">
             <CardContent className="p-4 flex flex-col gap-3">
-              <p className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">Recent Access Codes</p>
+              <p className="font-semibold text-[#242426] text-sm">Recent Access Codes</p>
               {recentAccessCodes.length === 0 ? (
-                <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm text-center py-8 tracking-[-0.5px]">No recent access codes</p>
+                <p className="text-[#5b5b66] text-sm text-center py-8">No recent access codes</p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {recentAccessCodes.slice(0, 5).map((code, i) => (
                     <div key={i} className="flex items-center justify-between py-2 border-b border-[#f4f4f9] last:border-0">
                       <div>
-                        <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">{code.codeCategory}</p>
-                        <p className="[font-family:'SF_Pro-Light',Helvetica] text-[#00cccc] text-xs font-mono">{code.code}</p>
+                        <p className="text-[#242426] text-sm">{code.codeCategory}</p>
+                        <p className="text-[#00cccc] text-xs font-mono">{code.code}</p>
                       </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full [font-family:'SF_Pro-Medium',Helvetica] ${
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         code.status === "Open" ? "bg-blue-50 text-blue-600" :
                         code.status === "Used" ? "bg-green-50 text-green-600" :
                         "bg-red-50 text-red-600"
@@ -487,30 +485,30 @@ function ResidentDashboardView() {
         <Card className="w-full bg-white rounded-xl">
           <CardContent className="p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <p className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-sm tracking-[-0.5px]">Household Members</p>
+              <p className="font-semibold text-[#242426] text-sm">Household Members</p>
               <Button
                 size="sm"
                 onClick={() => setIsOccupantDialogOpen(true)}
                 className="h-auto bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg px-3 py-1.5 transition-colors"
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
-                <span className="[font-family:'SF_Pro-Medium',Helvetica] text-white text-xs tracking-[-0.5px]">Add Occupant</span>
+                <span className="text-white text-xs">Add Occupant</span>
               </Button>
             </div>
             {recentOccupants.length === 0 ? (
-              <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-sm text-center py-8 tracking-[-0.5px]">No household members added yet</p>
+              <p className="text-[#5b5b66] text-sm text-center py-8">No household members added yet</p>
             ) : (
               <div className="flex flex-wrap gap-3">
                 {recentOccupants.map((occ, i) => (
                   <div key={i} className="flex items-center gap-2 px-3 py-2 bg-[#f4f4f9] rounded-lg">
                     <Avatar className="w-7 h-7">
-                      <AvatarFallback className="text-xs [font-family:'SF_Pro-Medium',Helvetica] bg-[#e5e5ea] text-[#2f5fbf]">
+                      <AvatarFallback className="text-xs font-medium bg-[#e5e5ea] text-[#2f5fbf]">
                         {occ.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-xs tracking-[-0.4px]">{occ.name}</p>
-                      <p className="[font-family:'SF_Pro-Regular',Helvetica] text-[#5b5b66] text-xs tracking-[-0.4px]">{occ.relationship}</p>
+                      <p className="font-medium text-[#242426] text-xs">{occ.name}</p>
+                      <p className="text-[#5b5b66] text-xs">{occ.relationship}</p>
                     </div>
                   </div>
                 ))}
@@ -524,20 +522,20 @@ function ResidentDashboardView() {
       <Dialog open={isOccupantDialogOpen} onOpenChange={setIsOccupantDialogOpen}>
         <DialogContent className="sm:max-w-[440px]">
           <DialogHeader>
-            <DialogTitle className="[font-family:'SF_Pro-Semibold',Helvetica] text-[#242426] text-xl tracking-[-0.8px]">
+            <DialogTitle className="font-semibold text-[#242426] text-xl tracking-[-0.8px]">
               Add Household Member
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onAddOccupant)} className="flex flex-col gap-4 mt-2">
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.3px]">Name</Label>
-              <Input {...register("name")} placeholder="Enter full name" className="[font-family:'SF_Pro-Regular',Helvetica] text-sm" />
+              <Label className="font-medium text-[#242426] text-sm">Name</Label>
+              <Input {...register("name")} placeholder="Enter full name" className="text-sm" />
               {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="[font-family:'SF_Pro-Medium',Helvetica] text-[#242426] text-sm tracking-[-0.3px]">Relationship</Label>
+              <Label className="font-medium text-[#242426] text-sm">Relationship</Label>
               <Select onValueChange={(v) => setValue("relationship", v)}>
-                <SelectTrigger className="[font-family:'SF_Pro-Regular',Helvetica] text-sm">
+                <SelectTrigger className="text-sm">
                   <SelectValue placeholder="Select relationship" />
                 </SelectTrigger>
                 <SelectContent>
@@ -550,11 +548,11 @@ function ResidentDashboardView() {
             </div>
             <div className="flex justify-end gap-3 mt-2">
               <Button type="button" variant="outline" onClick={() => { reset(); setIsOccupantDialogOpen(false); }} className="rounded-lg border-gray-200">
-                <span className="[font-family:'SF_Pro-Medium',Helvetica] text-sm tracking-[-0.5px]">Cancel</span>
+                <span className="font-medium text-sm">Cancel</span>
               </Button>
               <Button type="submit" disabled={addOccupant.isPending} className="bg-[#1f1f3f] hover:bg-[#1f1f3f]/90 rounded-lg">
                 {addOccupant.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                  <span className="[font-family:'SF_Pro-Medium',Helvetica] text-white text-sm tracking-[-0.5px]">Add Member</span>
+                  <span className="font-medium text-white text-sm">Add Member</span>
                 )}
               </Button>
             </div>
