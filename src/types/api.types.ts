@@ -63,7 +63,7 @@ export interface LoginResponse {
 
 export interface ErrorLoginResponse {
   error: string;
-  mustChangePassword?: string;
+  mustChangePassword?: boolean;
 }
 
 export interface SetPasswordRequest {

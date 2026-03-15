@@ -1,6 +1,6 @@
 "use client"
 
-import { BellIcon, SearchIcon, Command, LogOut, User, Settings, ChevronDown } from "lucide-react"
+import { BellIcon, SearchIcon, Command, LogOut, User, Settings, ChevronDown, KeyRound } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -132,6 +132,13 @@ export function Navbar() {
               >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push(`/set-password?username=${encodeURIComponent(user?.username || "")}&mode=change`)}
+                className="cursor-pointer"
+              >
+                <KeyRound className="mr-2 h-4 w-4" />
+                <span>Change Password</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

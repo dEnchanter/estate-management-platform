@@ -61,8 +61,13 @@ export default function Home() {
         password,
       });
 
-      // Login successful - token is automatically stored by the hook
-      console.log("Login successful:", response);
+      // Check if the API returned a password-change requirement (200 with mustChangePassword flag)
+      const maybePasswordChange = response as unknown as { mustChangePassword?: boolean };
+      if (maybePasswordChange.mustChangePassword) {
+        sessionStorage.setItem("pendingPassword", password);
+        router.push(`/set-password?username=${encodeURIComponent(username.trim())}`);
+        return;
+      }
 
       // Show success toast
       toast.success("Login successful!", {
@@ -90,8 +95,9 @@ export default function Home() {
 
       // Check if the user must change their password
       const apiError = error as ApiError;
-      const rawData = apiError.data as { mustChangePassword?: string } | undefined;
+      const rawData = apiError.data as { mustChangePassword?: boolean } | undefined;
       if (rawData?.mustChangePassword) {
+        sessionStorage.setItem("pendingPassword", password);
         router.push(`/set-password?username=${encodeURIComponent(username.trim())}`);
         return;
       }

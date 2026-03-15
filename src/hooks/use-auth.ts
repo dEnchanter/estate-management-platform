@@ -76,6 +76,10 @@ export function useLogin() {
   return useMutation({
     mutationFn: login,
     onSuccess: (data) => {
+      // If the server returned a password-change requirement, don't store auth data
+      const maybePasswordChange = data as unknown as { mustChangePassword?: boolean };
+      if (maybePasswordChange.mustChangePassword) return;
+
       // Store authentication data
       if (typeof window !== "undefined") {
         localStorage.setItem("token", data.token);

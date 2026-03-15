@@ -125,7 +125,9 @@ function findUtilityCardIndex(
 
 function AdminDashboardView() {
   const router = useRouter();
-  const { data: communities, isLoading: communitiesLoading } = useCommunities();
+  const { data: currentUser } = useCurrentUser();
+  const isSystemAdmin = currentUser?.userType === "System";
+  const { data: communities, isLoading: communitiesLoading } = useCommunities({ enabled: isSystemAdmin });
   const { data: wallets } = useWallets();
   const { data: services, isLoading: servicesLoading } = useServices();
 
@@ -204,7 +206,7 @@ function AdminDashboardView() {
 
   const communityRows = validCommunities.map((c: Community) => ({
     estateId: c.myCommunityID || c.id,
-    avatar: c.logoUrl || "/avatar.svg",
+    avatar: c.logoUrl && !c.logoUrl.includes("/http") ? c.logoUrl : "/avatar.svg",
     name: c.name,
     address: [
       c.address?.street,
@@ -258,8 +260,8 @@ function AdminDashboardView() {
           </CardContent>
         </Card>
 
-        {/* Communities Table */}
-        <Card className="w-full bg-white rounded-xl">
+        {/* Communities Table — System admins only */}
+        {isSystemAdmin && <Card className="w-full bg-white rounded-xl">
           <CardContent className="p-4 flex flex-col items-start gap-3">
             <p className="text-[#5b5b66] text-sm">Communities</p>
             {communitiesLoading ? (
@@ -317,7 +319,7 @@ function AdminDashboardView() {
               </div>
             )}
           </CardContent>
-        </Card>
+        </Card>}
       </section>
     </div>
   );

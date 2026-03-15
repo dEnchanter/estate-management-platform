@@ -50,7 +50,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
     const errorData = isJson ? await response.json() : await response.text();
     throw new ApiError(
       response.status,
-      errorData?.message || `Request failed with status ${response.status}`,
+      errorData?.message || errorData?.error || `Request failed with status ${response.status}`,
       errorData
     );
   }

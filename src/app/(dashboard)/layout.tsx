@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { useRouter, usePathname } from "next/navigation";
@@ -13,20 +13,23 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const isAuthenticated = useIsAuthenticated();
 
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (mounted && !isAuthenticated) {
       // Store the attempted URL to redirect back after login
       sessionStorage.setItem("redirectAfterLogin", pathname);
       router.replace("/");
     }
-  }, [isAuthenticated, router, pathname]);
+  }, [mounted, isAuthenticated, router, pathname]);
 
-  // Don't render dashboard content if not authenticated
-  if (!isAuthenticated) {
+  // Don't render until client has mounted (avoids hydration mismatch from localStorage reads)
+  if (!mounted || !isAuthenticated) {
     return null;
   }
 

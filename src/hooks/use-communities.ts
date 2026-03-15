@@ -89,10 +89,12 @@ const createCommunityCategory = async (data: CreateCategoryCategoryRequest): Pro
 /**
  * Get all communities
  */
-export function useCommunities(filters?: CommunityFilters, skipAuth?: boolean) {
+export function useCommunities(options?: { filters?: CommunityFilters; skipAuth?: boolean; enabled?: boolean }) {
+  const { filters, skipAuth, enabled = true } = options ?? {};
   return useQuery({
     queryKey: communityKeys.list(filters),
     queryFn: () => fetchCommunities(filters, skipAuth),
+    enabled,
   });
 }
 
